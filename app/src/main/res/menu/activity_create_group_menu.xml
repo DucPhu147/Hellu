@@ -1,0 +1,11 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".Alarm.AlarmMain.AlarmMainFragment">
+    <item
+        android:id="@+id/action_continue"
+        android:orderInCategory="100"
+        android:title="Tiếp tục"
+        android:icon="@drawable/ic_baseline_check_24"
+        app:showAsAction="always" />
+</menu>

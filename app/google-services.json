@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "839877671040",
+    "firebase_url": "https://hellu-bcf87.firebaseio.com",
+    "project_id": "hellu-bcf87",
+    "storage_bucket": "hellu-bcf87.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:839877671040:android:1f0bcddddcaa84da78ce65",
+        "android_client_info": {
+          "package_name": "com.example.talked"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "839877671040-41natp57qe2213dl3f2borbqhr4j5jd9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCmtr4bYARTrPrdxyetrxk4L2lC5SmkCF8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "839877671040-41natp57qe2213dl3f2borbqhr4j5jd9.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

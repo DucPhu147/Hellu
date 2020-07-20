@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:focusable="true"
+    android:focusableInTouchMode="true"
+    tools:context="com.example.hellu.CreateGroupActivity">
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:theme="@style/AppTheme.Toolbar2">
+    </androidx.appcompat.widget.Toolbar>
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/toolbar"
+        android:hint="Nhập tên nhóm"
+        android:inputType="text"
+        android:background="@color/colorWhiteTransparent"
+        android:paddingHorizontal="20dp"
+        android:paddingVertical="10dp"
+        android:id="@+id/selectUser_groupName"/>
+    <View
+        android:layout_width="match_parent"
+        android:id="@+id/view1"
+        android:layout_below="@+id/selectUser_groupName"
+        android:background="@color/colorBlack"
+        android:layout_height="1px"/>
+    <SearchView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/view1"
+        android:textSize="8pt"
+        android:iconifiedByDefault="false"
+        android:id="@+id/selectUser_searchUser"
+        android:queryHint="Tìm kiếm người dùng"/>
+    <androidx.recyclerview.widget.RecyclerView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/selectUser_userList2"
+        android:paddingVertical="20px"
+        android:clipToPadding="false"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        android:layout_below="@id/selectUser_searchUser"/>
+    <androidx.recyclerview.widget.RecyclerView
+        android:layout_width="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        android:layout_height="match_parent"
+        android:id="@+id/selectUser_userList"
+        android:layout_below="@+id/selectUser_userList2"/>
+</RelativeLayout>

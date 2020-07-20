@@ -1,0 +1,29 @@
+<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory app:title="Thông tin"
+        app:iconSpaceReserved="false">
+        <EditTextPreference
+            app:key="useremail"
+            app:title="Email"
+            app:enabled="false"
+            app:iconSpaceReserved="false"
+            app:useSimpleSummaryProvider="true" />
+        <EditTextPreference
+            app:key="username"
+            app:title="Tên hiển thị"
+            app:iconSpaceReserved="false"
+            app:useSimpleSummaryProvider="true" />
+    </PreferenceCategory>
+    <PreferenceCategory app:title="Cài đặt"
+    app:iconSpaceReserved="false">
+    <SwitchPreference
+        app:key="showNotification"
+        app:title="Hiện thông báo"
+        app:iconSpaceReserved="false" />
+    <DropDownPreference
+        app:key="themeColor"
+        app:title="Chủ đề"
+        app:iconSpaceReserved="false"
+        app:useSimpleSummaryProvider="true" />
+</PreferenceCategory>
+</PreferenceScreen>

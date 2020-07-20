@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_height="wrap_content"
+    android:layout_width="match_parent"
+    android:layout_marginBottom="1px"
+    app:cardElevation="2px"
+    app:cardCornerRadius="0dp"
+    android:id="@+id/cardView"
+    android:transitionName="itemTransition"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+<androidx.constraintlayout.widget.ConstraintLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="#fff">
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:layout_width="55dp"
+        android:layout_height="55dp"
+        android:src="@mipmap/ic_launcher_round"
+        android:layout_marginHorizontal="15dp"
+        android:layout_marginVertical="12dp"
+        android:id="@+id/selectUser_userImage"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"/>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintLeft_toRightOf="@+id/selectUser_userImage"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/selectUser_userSubText"
+        android:layout_marginLeft="10dp"
+        android:layout_marginTop="9dp"
+        android:textColor="#000"
+        android:textSize="9pt"
+        android:id="@+id/selectUser_userName"
+        android:text="userName"/>
+    <TextView
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintLeft_toRightOf="@+id/selectUser_userImage"
+        app:layout_constraintTop_toBottomOf="@+id/selectUser_userName"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginLeft="10dp"
+        android:layout_marginBottom="9dp"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:textSize="7pt"
+        android:id="@+id/selectUser_userSubText"
+        android:text="subText"/>
+    <CheckBox
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginRight="10dp"
+        android:id="@+id/selectUser_userCheckBox"
+        android:gravity="center"/>
+</androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.cardview.widget.CardView>
