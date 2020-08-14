@@ -7,7 +7,7 @@ public class User implements Serializable {
     private String username;
     private String imageURL;
     private String status;
-    private long lastseen;
+    private long lastonline;
     private String email;
     private String search;
 
@@ -21,7 +21,7 @@ public class User implements Serializable {
         this.email=email;
         this.imageURL=imgURL;
         this.status=status;
-        this.lastseen=lastSeen;
+        this.lastonline =lastSeen;
         this.search=search;
     }
 
@@ -33,12 +33,12 @@ public class User implements Serializable {
         this.search = search;
     }
 
-    public long getLastseen() {
-        return lastseen;
+    public long getLastonline() {
+        return lastonline;
     }
 
-    public void setLastseen(long lastseen) {
-        this.lastseen = lastseen;
+    public void setLastonline(long lastonline) {
+        this.lastonline = lastonline;
     }
 
     public String getStatus() {

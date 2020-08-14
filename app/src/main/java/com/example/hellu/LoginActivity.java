@@ -1,7 +1,6 @@
 package com.example.hellu;
 
 import android.content.Intent;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -91,9 +90,6 @@ public class LoginActivity extends AppCompatActivity {
             startActivity(intent);
             finish();
         }
-        Drawable paperPlane = getResources().getDrawable(R.drawable.paper_plane);
-        paperPlane.setAlpha(20);
-        //paperPlane.setTint(getResources().getColor(R.color.colorPrimaryLight));
         super.onStart();
     }
 }

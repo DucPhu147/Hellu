@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--Gỡ actionbar ở 1 activity-->
+    <style name="AppTheme.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+        <!--thuộc tính dưới chỉ dành cho API 21 trở lên-->
+        <item name="android:statusBarColor">@android:color/transparent</item>
+    </style>
+</resources>

@@ -13,6 +13,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.preference.EditTextPreference;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
@@ -49,25 +50,25 @@ public class UserProfileActivity extends AppCompatActivity {
     private Uri imageUri;
     private StorageTask uploadTask;
     StorageReference storageReference;
-    String userID;
-    User user;
+    String userID,imageURL;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user_profile);
+        Toolbar toolbar=findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setElevation(0);
         getSupportActionBar().setTitle("");
-        userImage=findViewById(R.id.userProfile_Image);
-        imageGallery=findViewById(R.id.userProfile_Gallery);
-        userID=getIntent().getStringExtra("id");
-        firebaseUser= FirebaseAuth.getInstance().getCurrentUser();
-        reference= FirebaseDatabase.getInstance().getReference("Users").child(userID).child("imageURL");
+        userImage = findViewById(R.id.userProfile_Image);
+        imageGallery = findViewById(R.id.userProfile_Gallery);
+        userID = getIntent().getStringExtra("id");
+        firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+        reference = FirebaseDatabase.getInstance().getReference("Users").child(userID).child("imageURL");
         reference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                if(IS_DESTROY==0) {
-                    String imageURL = dataSnapshot.getValue(String.class);
+                if (IS_DESTROY == 0) {
+                    imageURL = dataSnapshot.getValue(String.class);
                     //userEmail.setText(user.getEmail());
                     if (imageURL.equals("default")) {
                         userImage.setImageResource(R.mipmap.ic_launcher_round);
@@ -82,7 +83,7 @@ public class UserProfileActivity extends AppCompatActivity {
 
             }
         });
-        storageReference= FirebaseStorage.getInstance().getReference("UserProfileImages");
+        storageReference = FirebaseStorage.getInstance().getReference("UserProfileImages");
         imageGallery.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -95,6 +96,14 @@ public class UserProfileActivity extends AppCompatActivity {
                 .beginTransaction()
                 .replace(R.id.settings, new SettingsFragment())
                 .commit();
+        userImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent=new Intent(UserProfileActivity.this, ImageActivity.class);
+                intent.putExtra("imageURL",imageURL);
+                startActivity(intent);
+            }
+        });
     }
     int IS_DESTROY=0;
     @Override

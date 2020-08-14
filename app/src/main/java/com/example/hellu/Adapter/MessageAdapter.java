@@ -1,6 +1,8 @@
 package com.example.hellu.Adapter;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.view.LayoutInflater;
@@ -12,9 +14,13 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.core.app.ActivityOptionsCompat;
+import androidx.core.util.Pair;
+import androidx.core.view.ViewCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.example.hellu.ImageActivity;
 import com.example.hellu.Model.Message;
 import com.example.hellu.R;
 import com.google.firebase.auth.FirebaseAuth;
@@ -58,7 +64,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.Viewhold
     @Override
     public void onBindViewHolder(@NonNull final Viewholder holder, final int position) {
 
-        Message message =list.get(position);
+        final Message message =list.get(position);
         if(message.getType().equals("text")) {
             holder.txtMessage.setText(message.getMessage());
             holder.txtMessage.setVisibility(View.VISIBLE);
@@ -70,26 +76,44 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.Viewhold
             holder.txtMessage.setVisibility(View.GONE);
             holder.imgMsg.setVisibility(View.VISIBLE);
             holder.msgWrapper.setBackgroundColor(Color.TRANSPARENT);
-            holder.txtTimeStamp.setTextColor(Color.parseColor("#787878"));
+            holder.txtTimeStamp.setTextColor(context.getResources().getColor(R.color.colorBlackTransparent));
             holder.msgWrapper.setPadding(0,
                     holder.msgWrapper.getPaddingTop(),
                     0,
                     holder.msgWrapper.getPaddingBottom());
+            holder.imgMsg.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    ActivityOptionsCompat optionsCompat;
+                    optionsCompat = ActivityOptionsCompat.makeSceneTransitionAnimation(
+                            (Activity) context,
+                            Pair.create((View) holder.imgMsg, ViewCompat.getTransitionName(holder.imgMsg)));
+                    Intent intent=new Intent(context, ImageActivity.class);
+
+                    intent.putExtra("imageURL",message.getMessage());
+                    context.startActivity(intent,optionsCompat.toBundle());
+                }
+            });
         }
         //hiện thời gian
         long time= message.getTimestamp();
         Date thisItemDate=new Date(time);
-        SimpleDateFormat dateFormat=new SimpleDateFormat("EEE, dd/MM/yyyy");//thứ, ngày/tháng/năm
+        SimpleDateFormat dateFormat;
+        SimpleDateFormat yearFormat=new SimpleDateFormat("yyyy");//năm
+        if(yearFormat.format(System.currentTimeMillis()).equals(yearFormat.format(time)))
+            dateFormat=new SimpleDateFormat("dd MMM");//thứ, ngày/tháng/năm
+        else
+            dateFormat=new SimpleDateFormat("dd MMM, yyyy");//thứ, ngày/tháng/năm
+        holder.txtDate.setText(dateFormat.format(thisItemDate).toUpperCase());
         SimpleDateFormat hourFormat=new SimpleDateFormat("HH:mm");//17:05
         holder.txtTimeStamp.setText(hourFormat.format(thisItemDate));
-        holder.txtDate.setText(dateFormat.format(thisItemDate));
         GradientDrawable drawable=new GradientDrawable();
         if(!message.getType().equals("image")) {
             drawable = (GradientDrawable) holder.msgWrapper.getBackground().mutate();
             if (isViewRight)//top-left,top-right,bottom-right,bottom-left
-                drawable.setCornerRadii(new float[]{60, 60, 60, 60, 15, 15, 60, 60});
+                drawable.setCornerRadii(new float[]{50, 50, 50, 50, 15, 15, 50, 50});
             else
-                drawable.setCornerRadii(new float[]{60, 60, 60, 60, 60, 60, 15, 15});
+                drawable.setCornerRadii(new float[]{50, 50, 50, 50, 50, 50, 15, 15});
         }
         if(position>0) {
             //Ẩn Hiện ngày của message
@@ -104,9 +128,9 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.Viewhold
                     //mutate() để khi sửa background của 1 item thì các item dùng chung background đó không bị sửa theo
                     drawable = (GradientDrawable) holder.msgWrapper.getBackground().mutate();
                     if (isViewRight)//top-left,top-right,bottom-right,bottom-left
-                        drawable.setCornerRadii(new float[]{60, 60, 15, 15, 15, 15, 60, 60});
+                        drawable.setCornerRadii(new float[]{50, 50, 15, 15, 15, 15, 50, 50});
                     else
-                        drawable.setCornerRadii(new float[]{15, 15, 60, 60, 60, 60, 15, 15});
+                        drawable.setCornerRadii(new float[]{15, 15, 50, 50, 50, 50, 15, 15});
                 }
                 holder.msgWrapper.setBackground(drawable);
             }
@@ -218,9 +242,8 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.Viewhold
     public int getItemViewType(int position) {
         firebaseUser= FirebaseAuth.getInstance().getCurrentUser();
         //nếu id người gửi là id mình thì view sẽ là chat_item_right
-        if(list.get(position).getSender().equals(firebaseUser.getUid())){
+        if(list.get(position).getSender().equals(firebaseUser.getUid()))
             isViewRight=true;
-        }
         else
             isViewRight=false;
         return position;

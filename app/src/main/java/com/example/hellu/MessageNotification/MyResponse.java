@@ -1,4 +1,4 @@
-package com.example.hellu.Notification;
+package com.example.hellu.MessageNotification;
 
 public class MyResponse {
     public int success;

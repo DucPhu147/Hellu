@@ -19,12 +19,11 @@
             android:layout_height="wrap_content"
             android:gravity="center"
             android:id="@+id/userChat_Date"
-            android:background="@drawable/msg_date_background"
-            android:paddingVertical="10px"
+            android:paddingVertical="15px"
             android:paddingHorizontal="25px"
-            android:textSize="30px"
-            android:textColor="#fff"
-            android:text="14/5/2020"/>
+            android:textSize="32px"
+            android:textColor="@color/colorBlackTransparent"
+            android:text="14 thg 5/2020"/>
     </LinearLayout>
     <de.hdodenhof.circleimageview.CircleImageView
         android:layout_width="31dp"
@@ -59,7 +58,7 @@
             android:layout_height="wrap_content"
             android:textSize="8.5pt"
             android:textColor="#fff"
-            android:layout_gravity="left"
+            android:layout_gravity="center"
             android:layout_weight="1"
             android:id="@+id/userChat_Msg"/>
         <ImageView
@@ -68,6 +67,7 @@
             android:minWidth="170dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:transitionName="imageTransition"
             android:id="@+id/userChat_ImageMsg"/>
         <TextView
             android:layout_width="wrap_content"
@@ -86,6 +86,7 @@
         android:layout_below="@+id/msgWrapper"
         android:layout_alignParentRight="true"
         android:text="Đã gửi"
+        android:textColor="@color/colorBlackTransparent"
         android:textSize="5.5pt"
         android:id="@+id/userChat_isSeen"
         android:layout_marginRight="5px"/>

@@ -52,6 +52,7 @@ public class CreateGroupActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setTitle("Tạo nhóm mới");
+        getSupportActionBar().setElevation(8);
         searchView=findViewById(R.id.selectUser_searchUser);
         editGroupName=findViewById(R.id.selectUser_groupName);
         recyclerView1=findViewById(R.id.selectUser_userList);

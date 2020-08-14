@@ -7,7 +7,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 
-import com.example.hellu.Fragment.ChatGroupFragment;
+import com.example.hellu.Fragment.WaitForAcceptChatFragment;
 import com.example.hellu.Fragment.ChatFragment;
 import com.example.hellu.R;
 
@@ -29,7 +29,7 @@ public class SectionsPagerAdapter extends FragmentPagerAdapter {
     public Fragment getItem(int position) {
         switch(position){
             case 0: return ChatFragment.getInstance();
-            case 1: return ChatGroupFragment.getInstance();
+            case 1: return WaitForAcceptChatFragment.getInstance();
             default: return null;
         }
     }

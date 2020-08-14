@@ -25,6 +25,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -35,6 +37,7 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.Viewholder> {
     private Context context;
     private List<String> list;
     String lastMsg,senderID;
+    long timeStamp;
     public int unreadCount=0;
     private boolean isTypeGroup;
     public ChatAdapter(Context context, List<String> obj) {
@@ -71,10 +74,6 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.Viewholder> {
             @Override
             public void onClick(View v) {
                 Intent intent=new Intent(context, MessageActivity.class);
-                /*ActivityOptionsCompat optionsCompat;
-                optionsCompat = ActivityOptionsCompat.makeSceneTransitionAnimation(
-                        (Activity) context,
-                        Pair.create((View) holder.userName, ViewCompat.getTransitionName(holder.userName)));*/
                 intent.putExtra("id",id);
                 context.startActivity(intent);
             }
@@ -127,7 +126,7 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.Viewholder> {
             });
         }
 
-        displayLastMessage(id,holder.userMsg,holder.userUnreadCount);
+        displayLastMessage(id,holder.userMsg,holder.userUnreadCount,holder.userTimeStamp);
     }
 
     @Override
@@ -136,7 +135,7 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.Viewholder> {
     }
 
     public static class Viewholder extends RecyclerView.ViewHolder{
-        public TextView userName,userUnreadCount;
+        public TextView userName,userUnreadCount,userTimeStamp;
         public EmojiconTextView userMsg;
         public CircleImageView userImage;
         public View userStatus;
@@ -149,11 +148,13 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.Viewholder> {
             cardView=itemView.findViewById(R.id.cardView);
             userStatus=itemView.findViewById(R.id.userItem_status);
             userUnreadCount=itemView.findViewById(R.id.userItem_unread);
+            userTimeStamp=itemView.findViewById(R.id.userItem_timeStamp);
         }
     }
     String type;
-    private void displayLastMessage(final String id, final TextView txtMsg, final TextView userUnreadCount){
+    private void displayLastMessage(final String id, final TextView txtMsg, final TextView userUnreadCount,final TextView userTimeStamp){
         lastMsg="default";
+        timeStamp=0;
         final FirebaseUser firebaseUser= FirebaseAuth.getInstance().getCurrentUser();
         //id của mình phải luôn luôn ở vế trái
         String path;
@@ -172,6 +173,7 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.Viewholder> {
                     Message message = snapshot.getValue(Message.class);
                     type=message.getType();
                     lastMsg = message.getMessage();
+                    timeStamp=message.getTimestamp();
                     senderID = message.getSender();
                     if (!message.getSender().equals(firebaseUser.getUid()))
                     {
@@ -180,6 +182,22 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.Viewholder> {
                     }
                 }
                 if(!lastMsg.equals("default")) {
+                    long time= timeStamp;
+                    Date thisItemDate=new Date(time);
+                    SimpleDateFormat hourFormat;
+                    SimpleDateFormat dateFormat=new SimpleDateFormat("dd:MM:yyyy");
+                    SimpleDateFormat yearFormat=new SimpleDateFormat("yyyy");
+                    //Nếu message này được gửi trong cùng ngày
+                    if(dateFormat.format(System.currentTimeMillis()).equals(dateFormat.format(time)))
+                        hourFormat=new SimpleDateFormat("HH:mm");//17:05
+                    //Nếu message gửi trong cùng năm
+                    else if(yearFormat.format(System.currentTimeMillis()).equals(yearFormat.format(time)))
+                        hourFormat=new SimpleDateFormat("dd MMM");//04 thg 7
+                    //nếu message gửi khác năm
+                    else
+                        hourFormat=new SimpleDateFormat("dd MMM, yyyy");//04 thg 7, 2020
+                    userTimeStamp.setText(hourFormat.format(thisItemDate));
+                    userTimeStamp.setVisibility(View.VISIBLE);
                     if (senderID.equals(firebaseUser.getUid())) {
                         if(type.equals("text"))
                             txtMsg.setText("Bạn: " + lastMsg);
@@ -190,8 +208,7 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.Viewholder> {
                         if(type.equals("text"))
                             txtMsg.setText(lastMsg);
                         else if(type.equals("image"))
-                            txtMsg.setText("Đã gửi 1 ảnh");
-                    }
+                            txtMsg.setText("Đã gửi 1 ảnh");}
                 }
                 lastMsg="default";
                 if(unreadCount==0){

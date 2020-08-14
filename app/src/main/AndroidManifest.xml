@@ -5,10 +5,16 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-feature android:name="android.hardware.camera.any"
-                    android:required="true" />
-    <uses-feature android:name="android.hardware.camera.autofocus"
-                    android:required="false" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+
+    <uses-feature
+        android:name="android.hardware.camera.any"
+        android:required="true" />
+    <uses-feature
+        android:name="android.hardware.camera.autofocus"
+        android:required="false" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -16,17 +22,30 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".CreateGroupActivity"
-            android:theme="@style/AppTheme.NoActionBar2"></activity>
-        <activity android:name=".ResetPasswordActivity" />
-        <activity android:name=".UserProfileActivity" />
-        <activity android:name=".MessageActivity"
-            android:theme="@style/AppTheme.MessageActivityTheme"/>
-        <activity android:name=".RegisterActivity"
-            android:theme="@style/AppTheme.NoActionBar2"/>
+        <activity android:name=".VideoChatActivity"
+            android:theme="@style/DarkAppTheme.NoActionBar2" ></activity>
+        <activity
+            android:name=".CallingActivity"
+            android:autoRemoveFromRecents="true"
+            android:theme="@style/DarkAppTheme.NoActionBar2" />
+        <activity
+            android:name=".ImageActivity"
+            android:theme="@style/DarkAppTheme.NoActionBar2" />
+        <activity
+            android:name=".CreateGroupActivity"
+            android:theme="@style/AppTheme.NoActionBar2" />
+        <activity android:name=".ResetPasswordActivity"
+            android:theme="@style/AppTheme.NoActionBar2" />
+        <activity android:name=".UserProfileActivity"
+            android:theme="@style/AppTheme.NoActionBar2" />
+        <activity
+            android:name=".MessageActivity"
+            android:theme="@style/AppTheme.MessageActivityTheme" />
+        <activity
+            android:name=".RegisterActivity"
+            android:theme="@style/AppTheme.NoActionBar2" />
         <activity
             android:name=".LoginActivity"
-            android:windowSoftInputMode="adjustResize|stateAlwaysHidden"
             android:theme="@style/AppTheme.NoActionBar2">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -37,11 +56,13 @@
         <activity
             android:name=".MainActivity"
             android:theme="@style/AppTheme.NoActionBar" />
-        <service android:name=".Notification.MyFirebaseMessaging"
+
+        <service
+            android:name=".MessageNotification.MyFirebaseMessaging"
             android:enabled="true"
             android:exported="true">
             <intent-filter>
-                <action android:name="com.google.firebase.MESSAGING_EVENT"/>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
     </application>

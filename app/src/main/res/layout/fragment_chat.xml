@@ -3,13 +3,14 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:background="@drawable/paper_plane"
+    android:background="#fff"
     tools:context="com.example.hellu.Fragment.ChatFragment">
 
     <!-- TODO: Update blank fragment layout -->
     <androidx.recyclerview.widget.RecyclerView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:overScrollMode="never"
         app:layout_constraintTop_toTopOf="parent"
         android:id="@+id/chatUserRecycleView"
         app:layout_constraintBottom_toBottomOf="parent"/>

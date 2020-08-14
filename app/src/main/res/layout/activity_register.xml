@@ -4,14 +4,14 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/paper_plane"
     tools:context=".RegisterActivity">
     <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:background="#fff"
         app:layout_constraintTop_toTopOf="parent"
-        android:theme="@style/AppTheme.Toolbar2"
-        android:id="@+id/toolbar"/>
+        android:layout_height="wrap_content"
+        android:theme="@style/ToolbarPrimary"/>
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

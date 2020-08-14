@@ -52,14 +52,16 @@ public class SearchFragment extends Fragment {
         }
     public void searchUser(final String s) {
         final FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-        Query query = FirebaseDatabase.getInstance().getReference("Users");
+        Query query = FirebaseDatabase.getInstance().getReference("Users").orderByChild("search")
+                .startAt(s)
+                .endAt(s+"\uf8ff");
         query.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 list.clear();
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
                     User user = snapshot.getValue(User.class);
-                    if (!user.getId().equals(firebaseUser.getUid())&&user.getSearch().contains(s)) {
+                    if (!user.getId().equals(firebaseUser.getUid())) {
                         list.add(user.getId());
                     }
                 }
@@ -71,13 +73,15 @@ public class SearchFragment extends Fragment {
 
             }
         });
-        Query query2 = FirebaseDatabase.getInstance().getReference("Groups");
+        Query query2 = FirebaseDatabase.getInstance().getReference("Groups").orderByChild("search")
+                .startAt(s)
+                .endAt(s+"\uf8ff");
         query2.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
                     Group group = snapshot.getValue(Group.class);
-                    if (!group.getId().equals(firebaseUser.getUid())&&group.getSearch().contains(s)) {
+                    if (!group.getId().equals(firebaseUser.getUid())) {
                         list.add(group.getId());
                     }
                 }

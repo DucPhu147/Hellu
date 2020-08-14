@@ -24,8 +24,9 @@ import androidx.fragment.app.FragmentTransaction;
 import com.bumptech.glide.Glide;
 import com.example.hellu.Fragment.ChatFragment;
 import com.example.hellu.Fragment.SearchFragment;
+import com.example.hellu.MessageNotification.Token;
+import com.example.hellu.Model.Calling;
 import com.example.hellu.Model.User;
-import com.example.hellu.Notification.Token;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.tabs.TabLayout;
@@ -61,8 +62,8 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setElevation(8);
-        //getSupportActionBar().setElevation(0);
+
+        getSupportActionBar().setElevation(3);
         drawer = findViewById(R.id.drawer_layout);
         final NavigationView navigationView = findViewById(R.id.nav_view);
         ActionBarDrawerToggle toggle=new ActionBarDrawerToggle(this, drawer,toolbar,R.string.nav_drawer_open,R.string.nav_drawer_close);
@@ -96,6 +97,7 @@ public class MainActivity extends AppCompatActivity {
         fragmentTransaction.add(R.id.fragment_container, SearchFragment.getInstance());
         fragmentTransaction.hide(SearchFragment.getInstance());
         fragmentTransaction.commit();
+
         //lấy id từ naview
         View headerView = navigationView.getHeaderView(0);
         navUserImage=headerView.findViewById(R.id.user_image);
@@ -167,7 +169,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                SearchFragment.getInstance().searchUser(newText);
+                SearchFragment.getInstance().searchUser(newText.toLowerCase());
                 return false;
             }
         });
@@ -209,9 +211,37 @@ public class MainActivity extends AppCompatActivity {
         HashMap<String,Object> hashMap=new HashMap<>();
         hashMap.put("status",status);
         if(status.equals("offline"))
-            hashMap.put("lastseen", ServerValue.TIMESTAMP);
+            hashMap.put("lastonline", ServerValue.TIMESTAMP);
         reference.updateChildren(hashMap);
     }
+    boolean isStartCalling=false;
+    @Override
+    protected void onStart() {
+        super.onStart();
+        DatabaseReference reference=FirebaseDatabase.getInstance().getReference("Users").child(firebaseUser.getUid());
+        reference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if(snapshot.hasChild("Calling")){
+                    //thêm isStartCalling vào để ngăn việc start activity lần nữa khi update child Calling
+                    if(!isStartCalling) {
+                        Calling call = snapshot.child("Calling").getValue(Calling.class);
+                        Intent intent = new Intent(MainActivity.this, CallingActivity.class);
+                        intent.putExtra("callModel", call);
+                        startActivity(intent);
+                        isStartCalling = true;
+                    }
+                }else
+                    isStartCalling=false;
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
+
     @Override
     protected void onDestroy() {
         super.onDestroy();

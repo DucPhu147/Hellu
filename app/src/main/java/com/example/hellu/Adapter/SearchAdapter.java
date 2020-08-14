@@ -67,11 +67,7 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.Viewholder
             @Override
             public void onClick(View v) {
                 Intent intent=new Intent(context, MessageActivity.class);
-                /*ActivityOptionsCompat optionsCompat;
-                optionsCompat = ActivityOptionsCompat.makeSceneTransitionAnimation(
-                        (Activity) context,
-                        Pair.create((View) holder.userName, ViewCompat.getTransitionName(holder.userName)));
-                */
+
                 intent.putExtra("id",id);
                 context.startActivity(intent);
             }

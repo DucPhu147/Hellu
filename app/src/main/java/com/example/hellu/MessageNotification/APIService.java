@@ -1,4 +1,4 @@
-package com.example.hellu.Notification;
+package com.example.hellu.MessageNotification;
 
 import retrofit2.Call;
 import retrofit2.http.Body;

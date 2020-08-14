@@ -7,11 +7,11 @@
     tools:context=".MainActivity">
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar"
-            android:background="#fff"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
-             android:theme="@style/AppTheme.Toolbar2"/>
+            android:background="#fff"
+            android:theme="@style/ToolbarPrimary"/>
     <fragment
         android:layout_width="match_parent"
         android:layout_height="match_parent"

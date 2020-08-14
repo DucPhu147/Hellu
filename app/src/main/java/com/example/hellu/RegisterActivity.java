@@ -34,8 +34,8 @@ public class RegisterActivity extends AppCompatActivity {
         setContentView(R.layout.activity_register);
         Toolbar toolbar=findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setTitle("");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setTitle("");
 
 
         username=findViewById(R.id.username);
@@ -117,7 +117,7 @@ public class RegisterActivity extends AppCompatActivity {
                     hashMap.put("imageURL","default");
                     hashMap.put("status","offline");
                     hashMap.put("search",name.toLowerCase().trim()+" "+email+" "+name.trim());
-                    hashMap.put("lastseen","0");
+                    hashMap.put("lastonline","0");
                     reference.setValue(hashMap).addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {

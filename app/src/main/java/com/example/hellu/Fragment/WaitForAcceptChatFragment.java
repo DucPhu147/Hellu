@@ -20,7 +20,7 @@ import com.google.firebase.database.DatabaseReference;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ChatGroupFragment extends Fragment {
+public class WaitForAcceptChatFragment extends Fragment {
     //private GroupsAdapter groupsAdapter;
     private List<ChatIDList> groupIDList;
     private List<Group> chatGroup;
@@ -29,9 +29,9 @@ public class ChatGroupFragment extends Fragment {
     FirebaseUser firebaseUser;
     DatabaseReference reference;
 
-    private static final ChatGroupFragment ourInstance = new ChatGroupFragment();
+    private static final WaitForAcceptChatFragment ourInstance = new WaitForAcceptChatFragment();
 
-    public static ChatGroupFragment getInstance() {
+    public static WaitForAcceptChatFragment getInstance() {
         return ourInstance;
     }
     @Nullable

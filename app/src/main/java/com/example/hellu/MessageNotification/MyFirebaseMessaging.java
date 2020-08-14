@@ -1,4 +1,4 @@
-package com.example.hellu.Notification;
+package com.example.hellu.MessageNotification;
 
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -47,26 +47,26 @@ public class MyFirebaseMessaging extends FirebaseMessagingService {
     @Override
     public void onMessageReceived(@NonNull RemoteMessage remoteMessage) {
         super.onMessageReceived(remoteMessage);
-        String sendto=remoteMessage.getData().get("receiver");
+        String idReceiver=remoteMessage.getData().get("receiver");//id người nhận
         FirebaseUser firebaseUser= FirebaseAuth.getInstance().getCurrentUser();
-        if(firebaseUser!=null && sendto.equals(firebaseUser.getUid()))
+        if(firebaseUser!=null && idReceiver.equals(firebaseUser.getUid()))
         {
             sendNotification(remoteMessage);
         }
     }
     void sendNotification(RemoteMessage remoteMessage){
-        String sender=remoteMessage.getData().get("sender");
+        String sender=remoteMessage.getData().get("sender"); //id người gửi tin nhắn
         String largeIcon=remoteMessage.getData().get("largeicon");
         String title=remoteMessage.getData().get("title");
         String body=remoteMessage.getData().get("body");
 
-        RemoteMessage.Notification notification=remoteMessage.getNotification();
-        final int i=Integer.parseInt(sender.replaceAll("[\\D]",""));
+        //RemoteMessage.Notification notification=remoteMessage.getNotification();
+        final int id=Integer.parseInt(sender.replaceAll("[\\D]",""));
         Intent intent=new Intent(this, MessageActivity.class);
         intent.putExtra("id",sender);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
-        PendingIntent pendingIntent=PendingIntent.getActivity(this,i,intent,PendingIntent.FLAG_ONE_SHOT);
+        PendingIntent pendingIntent=PendingIntent.getActivity(this,id,intent,PendingIntent.FLAG_ONE_SHOT);
         final NotificationCompat.Builder builder=new NotificationCompat.Builder(this,"my_channel_01")
                 .setSmallIcon(R.drawable.ic_action_send_now)
                 .setContentTitle(title)
@@ -84,8 +84,8 @@ public class MyFirebaseMessaging extends FirebaseMessagingService {
                     @Override
                     public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
                         int j=0;
-                        if(i>0)
-                            j=i;
+                        if(id>0)
+                            j=id;
                         builder.setLargeIcon(resource);
                         notificationManager.notify(j,builder.build());
                     }

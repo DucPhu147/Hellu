@@ -22,6 +22,9 @@ allprojects {
         jcenter()
         //thư viện emoji keyboard
         maven { url 'https://jitpack.io' }
+        //thư viện video chat
+        maven { url 'https://maven.google.com'}
+        maven { url 'https://tokbox.bintray.com/maven'}
     }
 }
 

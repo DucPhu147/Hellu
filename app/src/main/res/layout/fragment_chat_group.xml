@@ -4,12 +4,13 @@
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="#fff"
-    tools:context="com.example.hellu.Fragment.ChatGroupFragment">
+    tools:context="com.example.hellu.Fragment.WaitForAcceptChatFragment">
 
     <!-- TODO: Update blank fragment layout -->
     <androidx.recyclerview.widget.RecyclerView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:overScrollMode="never"
         app:layout_constraintTop_toTopOf="parent"
         android:id="@+id/chatGroupRecycleView"
         app:layout_constraintBottom_toBottomOf="parent"/>
