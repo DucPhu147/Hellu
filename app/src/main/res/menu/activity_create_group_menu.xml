@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context=".Alarm.AlarmMain.AlarmMainFragment">
     <item
-        android:id="@+id/action_continue"
+        android:id="@+id/action_confirm"
         android:orderInCategory="100"
         android:title="Tiếp tục"
         android:icon="@drawable/ic_baseline_check_24"

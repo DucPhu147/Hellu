@@ -38,7 +38,7 @@
         <ImageButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/ic_round_phone_disabled_24"
+            android:src="@drawable/ic_round_call_end_24"
             android:tint="#fff"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toLeftOf="@+id/btnAcceptCall"
@@ -67,7 +67,7 @@
             android:background="@drawable/accept_phone_call_button"
             android:tint="#fff"
             android:layout_marginLeft="50dp"
-            android:src="@drawable/ic_baseline_phone_24"
+            android:src="@drawable/ic_round_call_24"
             android:id="@+id/btnAcceptCall"/>
         <TextView
             android:layout_width="wrap_content"

@@ -25,12 +25,12 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"/>
     <View
-        android:layout_width="16dp"
-        android:layout_height="16dp"
+        android:layout_width="15dp"
+        android:layout_height="15dp"
         android:id="@+id/userItem_status"
         app:layout_constraintBottom_toBottomOf="@+id/userItem_image"
         app:layout_constraintRight_toRightOf="@+id/userItem_image"
-        android:visibility="gone"
+        android:visibility="invisible"
         android:transitionName="statusTransition"
         android:background="@drawable/online_status"/>
     <TextView

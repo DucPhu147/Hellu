@@ -22,8 +22,13 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".VideoChatActivity"
-            android:theme="@style/DarkAppTheme.NoActionBar2" ></activity>
+        <activity android:name=".GroupDetailActivity"
+            android:theme="@style/AppTheme.NoActionBar2">
+
+        </activity>
+        <activity
+            android:name=".VideoChatActivity"
+            android:theme="@style/DarkAppTheme.NoActionBar2" />
         <activity
             android:name=".CallingActivity"
             android:autoRemoveFromRecents="true"
@@ -32,11 +37,13 @@
             android:name=".ImageActivity"
             android:theme="@style/DarkAppTheme.NoActionBar2" />
         <activity
-            android:name=".CreateGroupActivity"
+            android:name=".AddGroupMemberActivity"
             android:theme="@style/AppTheme.NoActionBar2" />
-        <activity android:name=".ResetPasswordActivity"
+        <activity
+            android:name=".ResetPasswordActivity"
             android:theme="@style/AppTheme.NoActionBar2" />
-        <activity android:name=".UserProfileActivity"
+        <activity
+            android:name=".UserProfileActivity"
             android:theme="@style/AppTheme.NoActionBar2" />
         <activity
             android:name=".MessageActivity"

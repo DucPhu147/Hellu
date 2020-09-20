@@ -7,7 +7,7 @@
     android:focusable="true"
     android:focusableInTouchMode="true"
     android:background="#fff"
-    tools:context="com.example.hellu.CreateGroupActivity">
+    tools:context="com.example.hellu.AddGroupMemberActivity">
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
@@ -15,42 +15,30 @@
         android:layout_height="wrap_content"
         android:theme="@style/ToolbarPrimary">
     </androidx.appcompat.widget.Toolbar>
-    <EditText
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/toolbar"
-        android:hint="Nhập tên nhóm"
-        android:inputType="text"
-        android:background="@color/colorWhiteTransparent"
-        android:paddingHorizontal="20dp"
-        android:paddingVertical="10dp"
-        android:id="@+id/selectUser_groupName"/>
-    <View
-        android:layout_width="match_parent"
-        android:id="@+id/view1"
-        android:layout_below="@+id/selectUser_groupName"
-        android:background="@color/colorBlack"
-        android:layout_height="1px"/>
     <SearchView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/view1"
-        android:textSize="8pt"
+        android:layout_marginVertical="10dp"
+        android:background="@drawable/msg_edittext_background"
         android:iconifiedByDefault="false"
+        android:layout_below="@+id/recycle_selectedUser"
+        android:layout_marginHorizontal="15dp"
         android:id="@+id/selectUser_searchUser"
+        android:queryBackground="@android:color/transparent"
         android:queryHint="Tìm kiếm người dùng"/>
     <androidx.recyclerview.widget.RecyclerView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/selectUser_userList2"
+        android:id="@+id/recycle_selectedUser"
         android:paddingVertical="20px"
+        android:layout_marginTop="20px"
         android:clipToPadding="false"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        android:layout_below="@id/selectUser_searchUser"/>
+        android:layout_below="@id/toolbar"/>
     <androidx.recyclerview.widget.RecyclerView
         android:layout_width="match_parent"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
         android:layout_height="match_parent"
-        android:id="@+id/selectUser_userList"
-        android:layout_below="@+id/selectUser_userList2"/>
+        android:id="@+id/recycle_chooseUser"
+        android:layout_below="@+id/selectUser_searchUser"/>
 </RelativeLayout>

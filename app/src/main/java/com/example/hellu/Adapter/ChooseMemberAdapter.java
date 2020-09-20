@@ -5,13 +5,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-import com.example.hellu.CreateGroupActivity;
+import com.example.hellu.AddGroupMemberActivity;
 import com.example.hellu.Model.User;
 import com.example.hellu.R;
 
@@ -19,13 +20,13 @@ import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
-public class SelectUsersAdapter extends RecyclerView.Adapter<SelectUsersAdapter.Viewholder> {
+public class ChooseMemberAdapter extends RecyclerView.Adapter<ChooseMemberAdapter.Viewholder> {
 
     private Context context;
     private List<User> list;
-    private CreateGroupActivity activity;
+    private AddGroupMemberActivity activity;
     private CheckBox checkBox;
-    public SelectUsersAdapter(Context context, List<User> obj, CreateGroupActivity activity) {
+    public ChooseMemberAdapter(Context context, List<User> obj, AddGroupMemberActivity activity) {
         this.context=context;
         list=obj;
         this.activity=activity;
@@ -34,7 +35,7 @@ public class SelectUsersAdapter extends RecyclerView.Adapter<SelectUsersAdapter.
     @NonNull
     @Override
     public Viewholder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(context).inflate(R.layout.user_item_selectuser, parent, false);
+        View view = LayoutInflater.from(context).inflate(R.layout.choose_user_item, parent, false);
         return new Viewholder(view);
     }
     @Override
@@ -53,11 +54,18 @@ public class SelectUsersAdapter extends RecyclerView.Adapter<SelectUsersAdapter.
             public void onClick(View v) {
                 if (holder.usersCheckBox.isChecked()) {
                     holder.usersCheckBox.setChecked(false);
-                    activity.removeItemFromList2(myUser);
                 } else {
                     holder.usersCheckBox.setChecked(true);
-                    activity.addItemToList2(myUser, position);
                 }
+            }
+        });
+        checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if(!b)
+                    activity.removeItemFromList2(myUser);
+                else
+                    activity.addItemToList2(myUser);
             }
         });
         holder.userSubText.setText(myUser.getEmail());

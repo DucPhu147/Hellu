@@ -1,6 +1,5 @@
 package com.example.hellu;
 
-import android.content.ContentResolver;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -10,7 +9,6 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.webkit.MimeTypeMap;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.PopupMenu;
@@ -27,16 +25,16 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.example.hellu.Adapter.MessageAdapter;
-import com.example.hellu.Model.Group;
-import com.example.hellu.Model.Message;
-import com.example.hellu.Model.User;
+import com.example.hellu.Class.UploadFileToFirebase;
 import com.example.hellu.MessageNotification.APIService;
 import com.example.hellu.MessageNotification.Client;
 import com.example.hellu.MessageNotification.Data;
 import com.example.hellu.MessageNotification.MyResponse;
 import com.example.hellu.MessageNotification.Sender;
 import com.example.hellu.MessageNotification.Token;
-import com.google.android.gms.tasks.Continuation;
+import com.example.hellu.Model.Group;
+import com.example.hellu.Model.Message;
+import com.example.hellu.Model.User;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
@@ -50,19 +48,15 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
-import com.google.firebase.storage.StorageTask;
-import com.google.firebase.storage.UploadTask;
 import com.r0adkll.slidr.Slidr;
 
-import java.io.ByteArrayOutputStream;
+import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.UUID;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 import hani.momanii.supernova_emoji_library.Actions.EmojIconActions;
@@ -87,11 +81,9 @@ public class MessageActivity extends AppCompatActivity {
     View viewUserStatus;
     ValueEventListener seenListener;
     int IS_DESTROY = 0;
-    String theirID, chatUserName, path;
+    String chatID, chatUserName, path;
     boolean isCurrentTypeIsGroup = false;
     Uri imageUri;
-    private StorageTask<UploadTask.TaskSnapshot> uploadTask;
-    StorageReference storageReference;
     String imgURL;
     User myCurrentUser;
     APIService apiService;
@@ -148,28 +140,29 @@ public class MessageActivity extends AppCompatActivity {
             public void onCancelled(@NonNull DatabaseError error) {
             }
         });
-        storageReference = FirebaseStorage.getInstance().getReference("MessageImages");
-        theirID = getIntent().getStringExtra("id");
-        if (theirID.contains("Group"))
+
+        chatID = getIntent().getStringExtra("id");
+
+        if (chatID.contains("Group"))
             isCurrentTypeIsGroup = true;
         else
             isCurrentTypeIsGroup = false;
         if (!isCurrentTypeIsGroup) {
             //id của mình luôn nằm vế trái
-            if (firebaseUser.getUid().compareTo(theirID) > 0) //nếu chuỗi đầu tiên lớn hơn chuỗi thứ 2
-                path = firebaseUser.getUid() + "|" + theirID;
+            if (firebaseUser.getUid().compareTo(chatID) > 0) //nếu chuỗi đầu tiên lớn hơn chuỗi thứ 2
+                path = firebaseUser.getUid() + "|" + chatID;
             else                                           //nếu chuỗi đầu tiên bằng hoặc nhỏ hơn chuỗi thứ 2
-                path = theirID + "|" + firebaseUser.getUid();
+                path = chatID + "|" + firebaseUser.getUid();
         } else
-            path = theirID;
+            path = chatID;
         list = new ArrayList<>();
         messageAdapter = new MessageAdapter(MessageActivity.this, list, path);
         recyclerView.setAdapter(messageAdapter);
 
         if (!isCurrentTypeIsGroup)
-            reference = FirebaseDatabase.getInstance().getReference("Users").child(theirID);
+            reference = FirebaseDatabase.getInstance().getReference("Users").child(chatID);
         else
-            reference = FirebaseDatabase.getInstance().getReference("Groups").child(theirID);
+            reference = FirebaseDatabase.getInstance().getReference("Groups").child(chatID);
 
         reference.addValueEventListener(new ValueEventListener() {
             @Override
@@ -180,25 +173,21 @@ public class MessageActivity extends AppCompatActivity {
                     if (currentChatUser.getStatus().equals("offline")) {
                         viewUserStatus.setVisibility(View.INVISIBLE);
                         long lastOnline = currentChatUser.getLastonline();
-                        if (lastOnline > 0) {//nếu ko lớn hơn 0 thì người dùng mới tạo tài khoản
-                            long timeOffline = System.currentTimeMillis() - lastOnline;
-                                long minuteOffline = timeOffline / 1000 / 60;
-                                if (minuteOffline < 60) {//Hoạt động vào 1-> 59 phút phút trước
-                                    if (minuteOffline == 0)
-                                        minuteOffline += 1;
-                                    txtSubText.setText("Hoạt động " + minuteOffline + " phút trước");
-                                }
-                                else if (minuteOffline >= 60 && minuteOffline < 1440)//Hoạt động vào 1-> 23 giờ trước
-                                    txtSubText.setText("Hoạt động " + minuteOffline / 60 + " giờ trước");
-                                else if (minuteOffline >= 1440 && minuteOffline < 11520)//Hoạt động vào 1-> 7 ngày trước
-                                    txtSubText.setText("Hoạt động " + minuteOffline / 1440 + " ngày trước");
-                                else {
-                                    Date thisItemDate = new Date(lastOnline);
-                                    SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMM,yyyy");
-                                    txtSubText.setText("Hoạt động vào " + dateFormat.format(thisItemDate));
-                                }
-                        } else
-                            txtSubText.setText(currentChatUser.getEmail());
+                        long timeOffline = System.currentTimeMillis() - lastOnline;
+                        long minuteOffline = timeOffline / 1000 / 60;
+                        if (minuteOffline < 60) {//Hoạt động vào 1-> 59 phút phút trước
+                            if (minuteOffline == 0)
+                                minuteOffline += 1;
+                            txtSubText.setText("Hoạt động " + minuteOffline + " phút trước");
+                        } else if (minuteOffline >= 60 && minuteOffline < 1440)//Hoạt động vào 1-> 23 giờ trước
+                            txtSubText.setText("Hoạt động " + minuteOffline / 60 + " giờ trước");
+                        else if (minuteOffline >= 1440 && minuteOffline < 11520)//Hoạt động vào 1-> 7 ngày trước
+                            txtSubText.setText("Hoạt động " + minuteOffline / 1440 + " ngày trước");
+                        else {
+                            Date thisItemDate = new Date(lastOnline);
+                            SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMM, yyyy");
+                            txtSubText.setText("Hoạt động vào " + dateFormat.format(thisItemDate));
+                        }
                     }
                     else if (currentChatUser.getStatus().equals("online")) {
                         viewUserStatus.setVisibility(View.VISIBLE);
@@ -236,7 +225,7 @@ public class MessageActivity extends AppCompatActivity {
             public void onClick(View v) {
                 isNotify = true;
                 String msg = editTextMessage.getText().toString();
-                sendMessage(firebaseUser.getUid(), theirID, msg.trim());
+                sendMessage(firebaseUser.getUid(), chatID, msg.trim());
                 editTextMessage.setText("");
             }
         });
@@ -282,10 +271,25 @@ public class MessageActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if(item.getItemId()==R.id.videocamera){
-            //Intent intent=new Intent(MessageActivity.this, CallingActivity.class);
-            //startActivity(intent);
+        if(item.getItemId()==R.id.call){
             sendCallRequest();
+        }else if(item.getItemId()==R.id.info){
+            Intent intent;
+            if(!isCurrentTypeIsGroup) {
+                intent = new Intent(MessageActivity.this, UserProfileActivity.class);
+                intent.putExtra("id", chatID);
+            }
+            else {
+                intent = new Intent(MessageActivity.this, GroupDetailActivity.class);
+                List<String> memberList= Arrays.asList(currentChatGroup.getMember().split(","));
+                intent.putExtra("listMember", (Serializable) memberList);
+                intent.putExtra("currentUser",myCurrentUser);
+                /*List<User>
+                for(int i=0;i<member.length;i++){
+
+                }*/
+            }
+            startActivity(intent);
         }else
             onBackPressed();
         return super.onOptionsItemSelected(item);
@@ -399,7 +403,7 @@ public class MessageActivity extends AppCompatActivity {
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
                     Token token = dataSnapshot.getValue(Token.class);
-                    Data data = new Data(myCurrentUser.getId(), msg, myCurrentUser.getUsername(), theirID, myCurrentUser.getImageURL());
+                    Data data = new Data(myCurrentUser.getId(), msg, myCurrentUser.getUsername(), chatID, myCurrentUser.getImageURL());
 
                     Sender sender = new Sender(data, token.getToken());
                     apiService.sendNotification(sender)
@@ -455,47 +459,20 @@ public class MessageActivity extends AppCompatActivity {
             editTextMessage.setVisibility(View.GONE);
             imgFromGalleryWrapper.setVisibility(View.VISIBLE);
             imgFromGallery.setImageBitmap(imageBitmap);
-            imageData=getByteDataFromBitmap(imageBitmap);
             isImageFromGallery=false;
         }
     }
 
-    //trả về đuôi jpg hoặc png...
-    private String getFileExtension(Uri uri) {
-        ContentResolver contentResolver = getContentResolver();
-        MimeTypeMap mimeTypeMap = MimeTypeMap.getSingleton();
-        return mimeTypeMap.getExtensionFromMimeType(contentResolver.getType(uri));
-    }
-
-    private byte[] getByteDataFromBitmap(Bitmap inImage) {
-        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-        inImage.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
-        //String path2 = MediaStore.Images.Media.insertImage(getContentResolver(), inImage, "Title", null);
-        byte[] data = bytes.toByteArray();
-        return data;
-    }
-
     private void uploadImage(final DatabaseReference ref, final HashMap<String, Object> hashMap) {
-        final StorageReference fileReference;
+        editTextMessage.setVisibility(View.VISIBLE);
+        UploadFileToFirebase uploadFileToFirebase;
+        if(isImageFromGallery)
+            uploadFileToFirebase=new UploadFileToFirebase(MessageActivity.this,false,imageUri);
+        else
+            uploadFileToFirebase=new UploadFileToFirebase(MessageActivity.this,false,imageBitmap);
         Toast.makeText(MessageActivity.this, "Đang gửi ảnh...", Toast.LENGTH_SHORT).show();
-        if(isImageFromGallery) {//nếu ảnh lấy từ thư viện
-            fileReference = storageReference.child(UUID.randomUUID() + "" + System.currentTimeMillis()
-                    + "." + getFileExtension(imageUri));
-            uploadTask = fileReference.putFile(imageUri);
-        }
-        else { //nếu ảnh vừa chụp
-            fileReference = storageReference.child(UUID.randomUUID() + "" + System.currentTimeMillis()+".jpeg");
-            uploadTask = fileReference.putBytes(imageData);
-        }
-        uploadTask.continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
-            @Override
-            public Task<Uri> then(@NonNull Task<UploadTask.TaskSnapshot> task) throws Exception {
-                if (!task.isSuccessful()) {
-                    throw task.getException();
-                }
-                return fileReference.getDownloadUrl();
-            }
-        }).addOnCompleteListener(new OnCompleteListener<Uri>() {
+        Task<Uri> uploadTask=uploadFileToFirebase.uploadImage();
+        uploadTask.addOnCompleteListener(new OnCompleteListener<Uri>() {
             @Override
             public void onComplete(@NonNull Task<Uri> task) {
                 if (task.isSuccessful()) {
@@ -504,7 +481,6 @@ public class MessageActivity extends AppCompatActivity {
                     hashMap.put("message", imgURL);
                     ref.setValue(hashMap);
                     Toast.makeText(MessageActivity.this, "Gửi ảnh thành công ", Toast.LENGTH_SHORT).show();
-                    editTextMessage.setVisibility(View.VISIBLE);
                 } else {
                     Toast.makeText(MessageActivity.this, "Gửi ảnh không thành công " + task.getException(), Toast.LENGTH_SHORT).show();
                     return;
@@ -522,13 +498,16 @@ public class MessageActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         if(!isCurrentTypeIsGroup) {
             MenuInflater inflater = getMenuInflater();
-            inflater.inflate(R.menu.activity_message, menu);
+            inflater.inflate(R.menu.user_chat_menu, menu);
+        }else{
+            MenuInflater inflater = getMenuInflater();
+            inflater.inflate(R.menu.group_chat_menu, menu);
         }
         return super.onCreateOptionsMenu(menu);
     }
     void sendCallRequest(){
         final DatabaseReference reference=FirebaseDatabase.getInstance().getReference("Users");
-        reference.child(theirID).addListenerForSingleValueEvent(new ValueEventListener() {
+        reference.child(chatID).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 //Kiểm tra xem đối phương có đang gọi hoặc nghe đt từ ai ko

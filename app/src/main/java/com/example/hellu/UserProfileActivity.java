@@ -1,13 +1,12 @@
 package com.example.hellu;
 
-import android.content.ContentResolver;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
-import android.webkit.MimeTypeMap;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -19,8 +18,9 @@ import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 
 import com.bumptech.glide.Glide;
+import com.example.hellu.Class.LoadingDialog;
+import com.example.hellu.Class.UploadFileToFirebase;
 import com.example.hellu.Model.User;
-import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
@@ -34,10 +34,8 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.StorageTask;
-import com.google.firebase.storage.UploadTask;
 
 import java.util.HashMap;
-import java.util.UUID;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -45,71 +43,85 @@ public class UserProfileActivity extends AppCompatActivity {
     FirebaseUser firebaseUser;
     DatabaseReference reference;
     CircleImageView userImage;
-    ImageView imageGallery;
-    private static final int IMAGE_REQUEST=1;
+    ImageView openGallery;
+    TextView userName, userEmail;
+    private final static int IMAGE_REQUEST = 1, CAMERA_REQUEST = 2;
     private Uri imageUri;
     private StorageTask uploadTask;
     StorageReference storageReference;
-    String userID,imageURL;
+    String userID, imageURL;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user_profile);
-        Toolbar toolbar=findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setTitle("");
+
         userImage = findViewById(R.id.userProfile_Image);
-        imageGallery = findViewById(R.id.userProfile_Gallery);
+        userName = findViewById(R.id.userProfile_UserName);
+        userEmail = findViewById(R.id.userProfile_Email);
+        openGallery = findViewById(R.id.openGallery);
+
         userID = getIntent().getStringExtra("id");
         firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-        reference = FirebaseDatabase.getInstance().getReference("Users").child(userID).child("imageURL");
+        if (!userID.equals(firebaseUser.getUid())) {
+            openGallery.setVisibility(View.GONE);
+        } else {
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.settings, new SettingsFragment())
+                    .commit();
+        }
+        reference = FirebaseDatabase.getInstance().getReference("Users").child(userID);
         reference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                if (IS_DESTROY == 0) {
-                    imageURL = dataSnapshot.getValue(String.class);
-                    //userEmail.setText(user.getEmail());
-                    if (imageURL.equals("default")) {
-                        userImage.setImageResource(R.mipmap.ic_launcher_round);
-                    } else {
-                        Glide.with(UserProfileActivity.this).load(imageURL).into(userImage);
+                    User user = dataSnapshot.getValue(User.class);
+                    userName.setText(user.getUsername());
+                    userEmail.setText(user.getEmail());
+                    if (IS_DESTROY == 0) {
+                        imageURL = user.getImageURL();
+                        if (imageURL.equals("default")) {
+                            userImage.setImageResource(R.mipmap.ic_launcher_round);
+                        } else {
+                            Glide.with(UserProfileActivity.this).load(imageURL).into(userImage);
+                        }
                     }
                 }
-            }
-
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
 
             }
         });
         storageReference = FirebaseStorage.getInstance().getReference("UserProfileImages");
-        imageGallery.setOnClickListener(new View.OnClickListener() {
+        openGallery.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                openGallery();
+                Intent intent = new Intent();
+                intent.setType("image/*");
+                intent.setAction(Intent.ACTION_GET_CONTENT);
+                startActivityForResult(intent, IMAGE_REQUEST);
             }
-
-
         });
-        getSupportFragmentManager()
-                .beginTransaction()
-                .replace(R.id.settings, new SettingsFragment())
-                .commit();
         userImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent=new Intent(UserProfileActivity.this, ImageActivity.class);
-                intent.putExtra("imageURL",imageURL);
+                Intent intent = new Intent(UserProfileActivity.this, ImageActivity.class);
+                intent.putExtra("imageURL", imageURL);
                 startActivity(intent);
             }
         });
     }
-    int IS_DESTROY=0;
+
+    int IS_DESTROY = 0;
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        IS_DESTROY=1;
+        IS_DESTROY = 1;
     }
 
     @Override
@@ -117,66 +129,34 @@ public class UserProfileActivity extends AppCompatActivity {
         onBackPressed();
         return super.onOptionsItemSelected(item);
     }
-    private void openGallery() {
-        Intent intent=new Intent();
-        intent.setType("image/*");
-        intent.setAction(Intent.ACTION_GET_CONTENT);
-        startActivityForResult(intent,IMAGE_REQUEST);
-    }
-    //trả về đuôi jpg hoặc png...
-    private String getFileExtension(Uri uri){
-        ContentResolver contentResolver=getContentResolver();
-        MimeTypeMap mimeTypeMap=MimeTypeMap.getSingleton();
-        return mimeTypeMap.getExtensionFromMimeType(contentResolver.getType(uri));
-    }
-    private void uploadImage(){
-        final LoadingDialog loadingDialog=new LoadingDialog(UserProfileActivity.this,"Đang tải ảnh lên...");
+    private void uploadImage() {
+        final LoadingDialog loadingDialog = new LoadingDialog(UserProfileActivity.this, "Đang tải ảnh lên...");
         loadingDialog.startDialog();
-        if(imageUri!=null){
-            final StorageReference fileReference=storageReference.child(UUID.randomUUID()+""+System.currentTimeMillis()
-                    +"."+getFileExtension(imageUri));
-            uploadTask=fileReference.putFile(imageUri);
-            uploadTask.continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
-                @Override
-                public Task<Uri> then(@NonNull Task<UploadTask.TaskSnapshot> task) throws Exception {
-                    if(!task.isSuccessful())
-                    {
-                        throw task.getException();
-                    }
-                    return fileReference.getDownloadUrl();
-                }
-            }).addOnCompleteListener(new OnCompleteListener<Uri>() {
-                @Override
-                public void onComplete(@NonNull Task<Uri> task) {
-                    loadingDialog.dismissDialog();
-                    if(task.isSuccessful()){
-                        Uri downloadUri=task.getResult();
-                        String mUri=downloadUri.toString();
+        UploadFileToFirebase uploadFileToFirebase = new UploadFileToFirebase(UserProfileActivity.this, true, imageUri);
+        uploadFileToFirebase.uploadImage().addOnCompleteListener(new OnCompleteListener<Uri>() {
+            @Override
+            public void onComplete(@NonNull Task<Uri> task) {
+                loadingDialog.dismissDialog();
+                if (task.isSuccessful()) {
+                    Uri downloadUri = task.getResult();
+                    String mUri = downloadUri.toString();
 
-                        reference=FirebaseDatabase.getInstance().getReference("Users").child(userID);
-                        HashMap<String,Object> map=new HashMap<>();
-                        map.put("imageURL",mUri);
-                        reference.updateChildren(map);
-                    }
-                    else
-                    {
-                        Toast.makeText(UserProfileActivity.this,"Tải ảnh không thành công",Toast.LENGTH_SHORT).show();
-                    }
+                    reference = FirebaseDatabase.getInstance().getReference("Users").child(userID);
+                    HashMap<String, Object> map = new HashMap<>();
+                    map.put("imageURL", mUri);
+                    reference.updateChildren(map);
+                } else {
+                    Toast.makeText(UserProfileActivity.this, "Tải ảnh không thành công", Toast.LENGTH_SHORT).show();
                 }
-            }).addOnFailureListener(new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception e) {
-                    Toast.makeText(UserProfileActivity.this,e.getMessage(),Toast.LENGTH_SHORT).show();
-                    loadingDialog.dismissDialog();
-                }
-            });
-        }else
-        {
-            Toast.makeText(UserProfileActivity.this,"Không có ảnh nào được chọn",Toast.LENGTH_SHORT).show();
-            loadingDialog.dismissDialog();
-        }
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Toast.makeText(UserProfileActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+                loadingDialog.dismissDialog();
+            }
+        });
     }
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);

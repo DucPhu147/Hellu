@@ -1,5 +1,7 @@
 package com.example.hellu.Model;
 
+import android.os.Parcelable;
+
 import java.io.Serializable;
 
 public class User implements Serializable {

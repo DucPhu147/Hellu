@@ -14,8 +14,8 @@
     android:layout_height="wrap_content"
     android:background="#fff">
     <de.hdodenhof.circleimageview.CircleImageView
-        android:layout_width="55dp"
-        android:layout_height="55dp"
+        android:layout_width="45dp"
+        android:layout_height="45dp"
         android:src="@mipmap/ic_launcher_round"
         android:layout_marginHorizontal="15dp"
         android:layout_marginVertical="12dp"
@@ -32,7 +32,8 @@
         android:layout_marginLeft="10dp"
         android:layout_marginTop="9dp"
         android:textColor="#000"
-        android:textSize="9pt"
+        android:fontFamily="sans-serif-medium"
+        android:textSize="16dp"
         android:id="@+id/selectUser_userName"
         android:text="userName"/>
     <TextView
@@ -45,7 +46,7 @@
         android:layout_marginBottom="9dp"
         android:ellipsize="end"
         android:maxLines="1"
-        android:textSize="7pt"
+        android:textSize="12dp"
         android:id="@+id/selectUser_userSubText"
         android:text="subText"/>
     <CheckBox

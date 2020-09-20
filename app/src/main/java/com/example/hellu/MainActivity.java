@@ -64,6 +64,7 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         getSupportActionBar().setElevation(3);
+        getSupportActionBar().setTitle("");
         drawer = findViewById(R.id.drawer_layout);
         final NavigationView navigationView = findViewById(R.id.nav_view);
         ActionBarDrawerToggle toggle=new ActionBarDrawerToggle(this, drawer,toolbar,R.string.nav_drawer_open,R.string.nav_drawer_close);
@@ -130,7 +131,7 @@ public class MainActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent=new Intent(MainActivity.this, CreateGroupActivity.class);
+                Intent intent=new Intent(MainActivity.this, AddGroupMemberActivity.class);
                 intent.putExtra("currentUser", (Serializable) currentUser);
                 startActivity(intent);
             }
@@ -243,10 +244,15 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        IS_DESTROY=1;
+    protected void onStop() {
+        super.onStop();
         setStatus("offline");
+    }
+
+    @Override
+    protected void onDestroy() {
+        IS_DESTROY=1;
+        super.onDestroy();
     }
 
     @Override

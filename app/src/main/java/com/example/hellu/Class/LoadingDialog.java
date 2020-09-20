@@ -1,15 +1,17 @@
-package com.example.hellu;
+package com.example.hellu.Class;
 
 import android.app.AlertDialog;
 import android.content.Context;
 import android.os.Bundle;
 import android.widget.TextView;
 
+import com.example.hellu.R;
+
 public class LoadingDialog extends AlertDialog{
     Context context;
     TextView txtLoadingText;
     String loadingText;
-    protected LoadingDialog(Context context,String loadingText) {
+    public LoadingDialog(Context context, String loadingText) {
         super(context);
         this.context=context;
         this.loadingText=loadingText;

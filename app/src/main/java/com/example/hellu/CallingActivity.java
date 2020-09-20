@@ -96,13 +96,13 @@ public class CallingActivity extends AppCompatActivity {
         });
     }
     @Override
-    protected void onStop() {
+    protected void onDestroy() {
         if(isCancelCall) {
             DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Users");
             reference.child(call.getReceiver()).child("Calling").removeValue();
             reference.child(call.getSender()).child("Calling").removeValue();
         }
-        super.onStop();
+        super.onDestroy();
     }
 
 

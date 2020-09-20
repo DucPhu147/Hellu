@@ -66,8 +66,8 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.Viewholder
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                //Intent intent=new Intent(context, UserProfileActivity.class);
                 Intent intent=new Intent(context, MessageActivity.class);
-
                 intent.putExtra("id",id);
                 context.startActivity(intent);
             }
@@ -75,7 +75,7 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.Viewholder
         DatabaseReference ref;
         if(!isTypeGroup) {
             ref = FirebaseDatabase.getInstance().getReference("Users").child(id);
-            ref.addValueEventListener(new ValueEventListener() {
+            ref.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                     User user=dataSnapshot.getValue(User.class);
@@ -84,10 +84,6 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.Viewholder
                         holder.userImage.setImageResource(R.mipmap.ic_launcher_round);
                     else
                         Glide.with(context.getApplicationContext()).load(user.getImageURL()).into(holder.userImage);
-                    if(user.getStatus().equals("offline"))
-                        holder.userStatus.setVisibility(View.INVISIBLE);
-                    else if(user.getStatus().equals("online"))
-                        holder.userStatus.setVisibility(View.VISIBLE);
                     holder.userMsg.setText(user.getEmail());
                 }
 

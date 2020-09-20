@@ -11,6 +11,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
+import com.example.hellu.Class.LoadingDialog;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputLayout;
@@ -19,6 +20,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ServerValue;
 
 import java.util.HashMap;
 
@@ -110,14 +112,14 @@ public class RegisterActivity extends AppCompatActivity {
                     String userID=f.getUid();
                     reference= FirebaseDatabase.getInstance().getReference("Users").child(userID);
 
-                    HashMap<String,String> hashMap=new HashMap<>();
+                    HashMap<String,Object> hashMap=new HashMap<>();
                     hashMap.put("id",userID);
                     hashMap.put("username",name.trim());
                     hashMap.put("email",email);
                     hashMap.put("imageURL","default");
                     hashMap.put("status","offline");
                     hashMap.put("search",name.toLowerCase().trim()+" "+email+" "+name.trim());
-                    hashMap.put("lastonline","0");
+                    hashMap.put("lastonline", ServerValue.TIMESTAMP);
                     reference.setValue(hashMap).addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {

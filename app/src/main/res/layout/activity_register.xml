@@ -41,7 +41,6 @@
                     android:layout_height="wrap_content"
                     android:inputType="textCapSentences"
                     android:maxLength="30"
-                    android:paddingHorizontal="15dp"
                     android:hint="Tên hiển thị"/>
             </com.google.android.material.textfield.TextInputLayout>
             <com.google.android.material.textfield.TextInputLayout
@@ -52,7 +51,6 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="textEmailAddress"
-                    android:paddingHorizontal="15dp"
                     android:hint="Email"/>
             </com.google.android.material.textfield.TextInputLayout>
             <com.google.android.material.textfield.TextInputLayout
@@ -63,7 +61,6 @@
                 <com.google.android.material.textfield.TextInputEditText
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:paddingHorizontal="15dp"
                     android:inputType="textPassword"
                     android:hint="Mật khẩu"/>
             </com.google.android.material.textfield.TextInputLayout>
