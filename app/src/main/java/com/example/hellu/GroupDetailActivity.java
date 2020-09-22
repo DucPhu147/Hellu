@@ -166,7 +166,7 @@ public class GroupDetailActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
     private void uploadImage() {
-        UploadFileToFirebase uploadFileToFirebase = new UploadFileToFirebase(GroupDetailActivity.this, true, imageUri);
+        UploadFileToFirebase uploadFileToFirebase = new UploadFileToFirebase(GroupDetailActivity.this, imageUri);
         uploadFileToFirebase.uploadImage().addOnCompleteListener(new OnCompleteListener<Uri>() {
             @Override
             public void onComplete(@NonNull Task<Uri> task) {
@@ -178,9 +178,6 @@ public class GroupDetailActivity extends AppCompatActivity {
                     HashMap<String, Object> map = new HashMap<>();
                     map.put("imageURL", mUri);
                     reference.updateChildren(map);
-                } else {
-                    Toast.makeText(GroupDetailActivity.this, "Tải ảnh nhóm không thành công", Toast.LENGTH_SHORT).show();
-
                 }
                 startMessageActivity();
             }

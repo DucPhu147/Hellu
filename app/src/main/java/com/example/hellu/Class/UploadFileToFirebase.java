@@ -20,30 +20,21 @@ import java.util.UUID;
 
 public class UploadFileToFirebase {
     Context context;
-    boolean isImageFromGallery;
     StorageReference storageReference;
     private StorageTask<UploadTask.TaskSnapshot> uploadTask;
     Uri imageUri;
     byte[] imageData;
     Bitmap imageBitmap;
-    public UploadFileToFirebase(Context c,boolean isUserProfileImage,Bitmap imageBitmap){
+    public UploadFileToFirebase(Context c,Bitmap imageBitmap){
         context=c;
         this.imageBitmap=imageBitmap;
-        this.isImageFromGallery=false;
         imageData=getByteDataFromBitmap(imageBitmap);
-        if(!isUserProfileImage)
-            storageReference = FirebaseStorage.getInstance().getReference("MessageImages");
-        else
-            storageReference = FirebaseStorage.getInstance().getReference("UserProfileImages");
+        storageReference = FirebaseStorage.getInstance().getReference("Images");
     }
-    public UploadFileToFirebase(Context c,boolean isUserProfileImage,Uri imageUri){
+    public UploadFileToFirebase(Context c,Uri imageUri){
         context=c;
         this.imageUri=imageUri;
-        this.isImageFromGallery=true;
-        if(!isUserProfileImage)
-            storageReference = FirebaseStorage.getInstance().getReference("MessageImages");
-        else
-            storageReference = FirebaseStorage.getInstance().getReference("UserProfileImages");
+        storageReference = FirebaseStorage.getInstance().getReference("Images");
     }
     //trả về đuôi png hay jpg
     private String getFileExtension(Uri uri) {
@@ -60,7 +51,7 @@ public class UploadFileToFirebase {
     }
     public Task<Uri> uploadImage() {
         final StorageReference fileReference;
-        if(isImageFromGallery) {//nếu ảnh lấy từ thư viện
+        if(imageUri!=null) {//nếu ảnh lấy từ thư viện
             fileReference = storageReference.child(UUID.randomUUID() + "" + System.currentTimeMillis()
                     + "." + getFileExtension(imageUri));
             uploadTask = fileReference.putFile(imageUri);

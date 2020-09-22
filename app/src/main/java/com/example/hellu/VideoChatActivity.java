@@ -92,7 +92,7 @@ public class VideoChatActivity extends AppCompatActivity implements Session.Sess
 
     @AfterPermissionGranted(RC_VIDEO_APP_PERM)
     private void requestPermissions(){
-        String[] permissions={Manifest.permission.INTERNET,Manifest.permission.CAMERA,Manifest.permission.RECORD_AUDIO};
+        String[] permissions={Manifest.permission.CAMERA,Manifest.permission.RECORD_AUDIO};
         if(EasyPermissions.hasPermissions(this,permissions)){
             mainFrame=findViewById(R.id.main_container);
             subFrame=findViewById(R.id.sub_container);

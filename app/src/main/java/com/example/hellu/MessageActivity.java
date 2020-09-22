@@ -143,18 +143,19 @@ public class MessageActivity extends AppCompatActivity {
 
         chatID = getIntent().getStringExtra("id");
 
-        if (chatID.contains("Group"))
+        if (chatID.contains("Group")) {
             isCurrentTypeIsGroup = true;
-        else
+            path = chatID;
+        }
+        else {
             isCurrentTypeIsGroup = false;
-        if (!isCurrentTypeIsGroup) {
             //id của mình luôn nằm vế trái
             if (firebaseUser.getUid().compareTo(chatID) > 0) //nếu chuỗi đầu tiên lớn hơn chuỗi thứ 2
                 path = firebaseUser.getUid() + "|" + chatID;
             else                                           //nếu chuỗi đầu tiên bằng hoặc nhỏ hơn chuỗi thứ 2
                 path = chatID + "|" + firebaseUser.getUid();
-        } else
-            path = chatID;
+        }
+
         list = new ArrayList<>();
         messageAdapter = new MessageAdapter(MessageActivity.this, list, path);
         recyclerView.setAdapter(messageAdapter);
@@ -167,48 +168,49 @@ public class MessageActivity extends AppCompatActivity {
         reference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                if (!isCurrentTypeIsGroup) { //nếu type là user
-                    currentChatUser = dataSnapshot.getValue(User.class);
-                    txtUserName.setText(currentChatUser.getUsername());
-                    if (currentChatUser.getStatus().equals("offline")) {
-                        viewUserStatus.setVisibility(View.INVISIBLE);
-                        long lastOnline = currentChatUser.getLastonline();
-                        long timeOffline = System.currentTimeMillis() - lastOnline;
-                        long minuteOffline = timeOffline / 1000 / 60;
-                        if (minuteOffline < 60) {//Hoạt động vào 1-> 59 phút phút trước
-                            if (minuteOffline == 0)
-                                minuteOffline += 1;
-                            txtSubText.setText("Hoạt động " + minuteOffline + " phút trước");
-                        } else if (minuteOffline >= 60 && minuteOffline < 1440)//Hoạt động vào 1-> 23 giờ trước
-                            txtSubText.setText("Hoạt động " + minuteOffline / 60 + " giờ trước");
-                        else if (minuteOffline >= 1440 && minuteOffline < 11520)//Hoạt động vào 1-> 7 ngày trước
-                            txtSubText.setText("Hoạt động " + minuteOffline / 1440 + " ngày trước");
-                        else {
-                            Date thisItemDate = new Date(lastOnline);
-                            SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMM, yyyy");
-                            txtSubText.setText("Hoạt động vào " + dateFormat.format(thisItemDate));
+                if (dataSnapshot.getValue() != null) {
+                    if (!isCurrentTypeIsGroup) { //nếu type là user
+                        currentChatUser = dataSnapshot.getValue(User.class);
+                        txtUserName.setText(currentChatUser.getUsername());
+                        if (currentChatUser.getStatus().equals("offline")) {
+                            viewUserStatus.setVisibility(View.INVISIBLE);
+                            long lastOnline = currentChatUser.getLastonline();
+                            long timeOffline = System.currentTimeMillis() - lastOnline;
+                            long minuteOffline = timeOffline / 1000 / 60;
+                            if (minuteOffline < 60) {//Hoạt động vào 1-> 59 phút phút trước
+                                if (minuteOffline == 0)
+                                    minuteOffline += 1;
+                                txtSubText.setText("Hoạt động " + minuteOffline + " phút trước");
+                            } else if (minuteOffline >= 60 && minuteOffline < 1440)//Hoạt động vào 1-> 23 giờ trước
+                                txtSubText.setText("Hoạt động " + minuteOffline / 60 + " giờ trước");
+                            else if (minuteOffline >= 1440 && minuteOffline < 11520)//Hoạt động vào 1-> 7 ngày trước
+                                txtSubText.setText("Hoạt động " + minuteOffline / 1440 + " ngày trước");
+                            else {
+                                Date thisItemDate = new Date(lastOnline);
+                                SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMM, yyyy");
+                                txtSubText.setText("Hoạt động vào " + dateFormat.format(thisItemDate));
+                            }
+                        } else if (currentChatUser.getStatus().equals("online")) {
+                            viewUserStatus.setVisibility(View.VISIBLE);
+                            txtSubText.setText("Đang hoạt động");
                         }
-                    }
-                    else if (currentChatUser.getStatus().equals("online")) {
-                        viewUserStatus.setVisibility(View.VISIBLE);
-                        txtSubText.setText("Đang hoạt động");
-                    }
-                    if (IS_DESTROY == 0) {
-                        if (currentChatUser.getImageURL().equals("default"))
-                            imgViewUserImage.setImageResource(R.mipmap.ic_launcher_round);
-                        else
-                            Glide.with(MessageActivity.this).load(currentChatUser.getImageURL()).into(imgViewUserImage);
-                    }
-                } else { //nếu type là group
-                    currentChatGroup = dataSnapshot.getValue(Group.class);
-                    txtUserName.setText(currentChatGroup.getName());
-                    viewUserStatus.setVisibility(View.GONE);
-                    txtSubText.setText(currentChatGroup.getMember().split(",").length + " thành viên");
-                    if (IS_DESTROY == 0) {
-                        if (currentChatGroup.getImageURL().equals("default"))
-                            imgViewUserImage.setImageResource(R.mipmap.ic_launcher_round);
-                        else
-                            Glide.with(MessageActivity.this).load(currentChatGroup.getImageURL()).into(imgViewUserImage);
+                        if (IS_DESTROY == 0) {
+                            if (currentChatUser.getImageURL().equals("default"))
+                                imgViewUserImage.setImageResource(R.mipmap.ic_launcher_round);
+                            else
+                                Glide.with(MessageActivity.this).load(currentChatUser.getImageURL()).into(imgViewUserImage);
+                        }
+                    } else { //nếu type là group
+                        currentChatGroup = dataSnapshot.getValue(Group.class);
+                        txtUserName.setText(currentChatGroup.getName());
+                        viewUserStatus.setVisibility(View.GONE);
+                        txtSubText.setText(currentChatGroup.getMember().split(",").length + " thành viên");
+                        if (IS_DESTROY == 0) {
+                            if (currentChatGroup.getImageURL().equals("default"))
+                                imgViewUserImage.setImageResource(R.mipmap.ic_launcher_round);
+                            else
+                                Glide.with(MessageActivity.this).load(currentChatGroup.getImageURL()).into(imgViewUserImage);
+                        }
                     }
                 }
             }
@@ -225,6 +227,7 @@ public class MessageActivity extends AppCompatActivity {
             public void onClick(View v) {
                 isNotify = true;
                 String msg = editTextMessage.getText().toString();
+                //sender , receiver, message
                 sendMessage(firebaseUser.getUid(), chatID, msg.trim());
                 editTextMessage.setText("");
             }
@@ -284,10 +287,6 @@ public class MessageActivity extends AppCompatActivity {
                 List<String> memberList= Arrays.asList(currentChatGroup.getMember().split(","));
                 intent.putExtra("listMember", (Serializable) memberList);
                 intent.putExtra("currentUser",myCurrentUser);
-                /*List<User>
-                for(int i=0;i<member.length;i++){
-
-                }*/
             }
             startActivity(intent);
         }else
@@ -381,15 +380,25 @@ public class MessageActivity extends AppCompatActivity {
         }
 
         //Tạo cuộc trò chuyện giữa 2 người
-        DatabaseReference chatRef = FirebaseDatabase.getInstance().getReference("ChatIDList")
-                .child(sender) //ID của mình
-                .child(receiver);   //ID của người mình nhắn tới
-        chatRef.child("id").setValue(receiver);
         if (!isCurrentTypeIsGroup) {
-            chatRef = FirebaseDatabase.getInstance().getReference("ChatIDList")
-                    .child(receiver) //ID của người mình nhắn tới
+            DatabaseReference chatRef = FirebaseDatabase.getInstance().getReference("ChatIDList")
+                    .child(receiver) //ID người nhận
                     .child(sender);   //ID của mình
+
             chatRef.child("id").setValue(sender);
+
+            DatabaseReference chatRef2 = FirebaseDatabase.getInstance().getReference("ChatIDList")
+                    .child(sender) //ID người nhận
+                    .child(receiver);   //ID của mình
+            chatRef2.child("id").setValue(receiver);
+        }else{
+            List<String> memberList= Arrays.asList(currentChatGroup.getMember().split(","));
+            for(int i=0;i<memberList.size();i++){
+                DatabaseReference chatRef = FirebaseDatabase.getInstance().getReference("ChatIDList")
+                        .child(memberList.get(i)) //ID của member
+                        .child(receiver);   //ID group
+                chatRef.child("id").setValue(receiver);
+            }
         }
         if (isNotify)
             sendNotification(receiver, message);
@@ -467,9 +476,9 @@ public class MessageActivity extends AppCompatActivity {
         editTextMessage.setVisibility(View.VISIBLE);
         UploadFileToFirebase uploadFileToFirebase;
         if(isImageFromGallery)
-            uploadFileToFirebase=new UploadFileToFirebase(MessageActivity.this,false,imageUri);
+            uploadFileToFirebase=new UploadFileToFirebase(MessageActivity.this,imageUri);
         else
-            uploadFileToFirebase=new UploadFileToFirebase(MessageActivity.this,false,imageBitmap);
+            uploadFileToFirebase=new UploadFileToFirebase(MessageActivity.this,imageBitmap);
         Toast.makeText(MessageActivity.this, "Đang gửi ảnh...", Toast.LENGTH_SHORT).show();
         Task<Uri> uploadTask=uploadFileToFirebase.uploadImage();
         uploadTask.addOnCompleteListener(new OnCompleteListener<Uri>() {
@@ -481,9 +490,6 @@ public class MessageActivity extends AppCompatActivity {
                     hashMap.put("message", imgURL);
                     ref.setValue(hashMap);
                     Toast.makeText(MessageActivity.this, "Gửi ảnh thành công ", Toast.LENGTH_SHORT).show();
-                } else {
-                    Toast.makeText(MessageActivity.this, "Gửi ảnh không thành công " + task.getException(), Toast.LENGTH_SHORT).show();
-                    return;
                 }
             }
         }).addOnFailureListener(new OnFailureListener() {

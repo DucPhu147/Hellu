@@ -132,7 +132,7 @@ public class UserProfileActivity extends AppCompatActivity {
     private void uploadImage() {
         final LoadingDialog loadingDialog = new LoadingDialog(UserProfileActivity.this, "Đang tải ảnh lên...");
         loadingDialog.startDialog();
-        UploadFileToFirebase uploadFileToFirebase = new UploadFileToFirebase(UserProfileActivity.this, true, imageUri);
+        UploadFileToFirebase uploadFileToFirebase = new UploadFileToFirebase(UserProfileActivity.this, imageUri);
         uploadFileToFirebase.uploadImage().addOnCompleteListener(new OnCompleteListener<Uri>() {
             @Override
             public void onComplete(@NonNull Task<Uri> task) {
