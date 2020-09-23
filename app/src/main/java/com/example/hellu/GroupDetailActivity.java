@@ -19,7 +19,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.hellu.Adapter.GroupMemberAdapter;
-import com.example.hellu.Class.LoadingDialog;
 import com.example.hellu.Class.UploadFileToFirebase;
 import com.example.hellu.Model.User;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -45,7 +44,6 @@ public class GroupDetailActivity extends AppCompatActivity {
     User currentUser;
     String groupID;
     Uri imageUri;
-    LoadingDialog loadingDialog;
     private final static int IMAGE_REQUEST=1;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -104,9 +102,6 @@ public class GroupDetailActivity extends AppCompatActivity {
         groupID= "Group_" + UUID.randomUUID() + System.currentTimeMillis();//tự tạo id riêng với khả năng bị trùng thấp nhất
         hashMap.put("id", groupID);
 
-        loadingDialog = new LoadingDialog(GroupDetailActivity.this, "Đang tạo nhóm...");
-        loadingDialog.startDialog();
-
         String member="";
         DatabaseReference groupRef = FirebaseDatabase.getInstance().getReference("Groups").child(groupID);
         for(int i=0;i<memberList.size();i++){
@@ -127,17 +122,14 @@ public class GroupDetailActivity extends AppCompatActivity {
                     if(imageUri!=null)
                         uploadImage();
                     else {
-                        loadingDialog.dismissDialog();
                         startMessageActivity();
                     }
-                }else {
-                    Toast.makeText(GroupDetailActivity.this, "Tạo nhóm không thành công", Toast.LENGTH_SHORT).show();
                 }
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
-                loadingDialog.dismissDialog();
+                Toast.makeText(GroupDetailActivity.this,e.getMessage(),Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -170,7 +162,6 @@ public class GroupDetailActivity extends AppCompatActivity {
         uploadFileToFirebase.uploadImage().addOnCompleteListener(new OnCompleteListener<Uri>() {
             @Override
             public void onComplete(@NonNull Task<Uri> task) {
-                loadingDialog.dismissDialog();
                 if (task.isSuccessful()) {
                     Uri downloadUri = task.getResult();
                     String mUri = downloadUri.toString();
@@ -185,7 +176,6 @@ public class GroupDetailActivity extends AppCompatActivity {
             @Override
             public void onFailure(@NonNull Exception e) {
                 Toast.makeText(GroupDetailActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
-                loadingDialog.dismissDialog();
             }
         });
     }

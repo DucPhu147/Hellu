@@ -1,5 +1,6 @@
 package com.example.hellu;
 
+import android.Manifest;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -61,6 +62,8 @@ import java.util.List;
 import de.hdodenhof.circleimageview.CircleImageView;
 import hani.momanii.supernova_emoji_library.Actions.EmojIconActions;
 import hani.momanii.supernova_emoji_library.Helper.EmojiconEditText;
+import pub.devrel.easypermissions.AfterPermissionGranted;
+import pub.devrel.easypermissions.EasyPermissions;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -89,10 +92,10 @@ public class MessageActivity extends AppCompatActivity {
     APIService apiService;
     boolean isNotify = false;
     Bitmap imageBitmap;
-    byte[] imageData;
+    boolean isPermGranted=false;
     User currentChatUser;
     Group currentChatGroup;
-    private final static int IMAGE_REQUEST = 1, CAMERA_REQUEST = 2,FILE_REQUEST=3;
+    private final static int IMAGE_REQUEST = 1, CAMERA_REQUEST = 2,FILE_REQUEST=3,STORAGE_REQUEST=123;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -243,17 +246,27 @@ public class MessageActivity extends AppCompatActivity {
                     @Override
                     public boolean onMenuItemClick(MenuItem item) {
                         if (item.getItemId() == R.id.gallery) {
-                            Intent intent = new Intent();
-                            intent.setType("image/*");
-                            intent.setAction(Intent.ACTION_GET_CONTENT);
-                            startActivityForResult(intent, IMAGE_REQUEST);
+                            if(isPermGranted) {
+                                Intent intent = new Intent();
+                                intent.setType("image/*");
+                                intent.setAction(Intent.ACTION_GET_CONTENT);
+                                startActivityForResult(intent, IMAGE_REQUEST);
+                            }
+                            else
+                                requestPermissions();
                         } else if (item.getItemId() == R.id.camera) {
-                            Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                            startActivityForResult(intent, CAMERA_REQUEST);
+                            if(isPermGranted) {
+                                Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                                startActivityForResult(intent, CAMERA_REQUEST);
+                            }else
+                                requestPermissions();
                         } else if (item.getItemId() == R.id.files) {
-                            Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-                            intent.setType("*/*");
-                            startActivityForResult(intent,FILE_REQUEST);
+                            if(isPermGranted) {
+                                Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+                                intent.setType("*/*");
+                                startActivityForResult(intent, FILE_REQUEST);
+                            }else
+                                requestPermissions();
                         }
                         return true;
                     }
@@ -561,5 +574,21 @@ public class MessageActivity extends AppCompatActivity {
 
             }
         });
+    }
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        EasyPermissions.onRequestPermissionsResult(requestCode,permissions,grantResults,MessageActivity.this);
+
+    }
+
+    @AfterPermissionGranted(STORAGE_REQUEST)
+    private void requestPermissions(){
+        String[] permissions={Manifest.permission.CAMERA,Manifest.permission.READ_EXTERNAL_STORAGE,Manifest.permission.WRITE_EXTERNAL_STORAGE};
+        if(EasyPermissions.hasPermissions(this,permissions)){
+            isPermGranted=true;
+        }else{
+            EasyPermissions.requestPermissions(this,"Read storage permission is needed...",STORAGE_REQUEST,permissions);
+        }
     }
 }

@@ -26,7 +26,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
 public class CallingActivity extends AppCompatActivity {
     ImageButton btnCancelCall, btnAcceptCall;
     FirebaseUser firebaseUser;
-    CircleImageView circleImageView;
+    CircleImageView callerImage;
     TextView txtCallingContent,txtAcceptCall,txtCancelCall;
     Calling call;
     boolean isCancelCall;
@@ -36,7 +36,7 @@ public class CallingActivity extends AppCompatActivity {
         setContentView(R.layout.activity_calling);
         btnCancelCall =findViewById(R.id.btnCancelCall);
         btnAcceptCall =findViewById(R.id.btnAcceptCall);
-        circleImageView=findViewById(R.id.callingImage);
+        callerImage=findViewById(R.id.callerImage);
         txtCallingContent=findViewById(R.id.txtCallingContent);
         txtAcceptCall=findViewById(R.id.txtAcceptCall);
         txtCancelCall=findViewById(R.id.txtCancelCall);
@@ -51,7 +51,10 @@ public class CallingActivity extends AppCompatActivity {
             btnAcceptCall.setVisibility(View.GONE);
             txtAcceptCall.setVisibility(View.GONE);
         }
-        Glide.with(CallingActivity.this).load(call.getImageURL()).into(circleImageView);
+        if(!call.getImageURL().equals("default"))
+            Glide.with(CallingActivity.this).load(call.getImageURL()).into(callerImage);
+        else
+            callerImage.setImageResource(R.mipmap.ic_launcher_round);
         btnCancelCall.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
