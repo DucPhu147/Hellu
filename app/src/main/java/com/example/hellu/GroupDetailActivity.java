@@ -22,7 +22,6 @@ import com.example.hellu.Adapter.GroupMemberAdapter;
 import com.example.hellu.Class.UploadFileToFirebase;
 import com.example.hellu.Model.User;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.database.DatabaseReference;
@@ -124,12 +123,9 @@ public class GroupDetailActivity extends AppCompatActivity {
                     else {
                         startMessageActivity();
                     }
+                }else{
+                    Toast.makeText(GroupDetailActivity.this,task.getException().getMessage(),Toast.LENGTH_SHORT).show();
                 }
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Toast.makeText(GroupDetailActivity.this,e.getMessage(),Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -170,12 +166,10 @@ public class GroupDetailActivity extends AppCompatActivity {
                     map.put("imageURL", mUri);
                     reference.updateChildren(map);
                 }
+                else{
+                    Toast.makeText(GroupDetailActivity.this,task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                }
                 startMessageActivity();
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Toast.makeText(GroupDetailActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }

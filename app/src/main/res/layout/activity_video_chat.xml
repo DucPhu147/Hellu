@@ -16,6 +16,7 @@
             <FrameLayout
                 android:layout_width="100dp"
                 android:layout_height="130dp"
+                android:layout_margin="10dp"
                 android:id="@+id/sub_container"
                 android:layout_gravity="top|end"
                 android:background="#E23E4F8F"/>

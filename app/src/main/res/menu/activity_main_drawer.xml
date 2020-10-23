@@ -9,9 +9,9 @@
             android:icon="@drawable/ic_baseline_account_circle_24"
             android:title="Tài khoản" />
         <item
-            android:id="@+id/nav_setting"
-            android:icon="@drawable/ic_settings_24dp"
-            android:title="Cài đặt" />
+            android:id="@+id/nav_resetpw"
+            android:icon="@drawable/ic_baseline_lock_24"
+            android:title="Đổi mật khẩu" />
         <item
             android:id="@+id/nav_signout"
             android:icon="@drawable/ic_exit_to_app_24dp"

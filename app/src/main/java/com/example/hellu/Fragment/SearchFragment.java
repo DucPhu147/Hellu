@@ -32,7 +32,6 @@ public class SearchFragment extends Fragment {
     private RecyclerView recyclerView;
     private RecyclerView.LayoutManager layoutManager;
     private static final SearchFragment ourInstance = new SearchFragment();
-
     public static SearchFragment getInstance() {
         return ourInstance;
     }
@@ -42,7 +41,6 @@ public class SearchFragment extends Fragment {
             View view=inflater.inflate(R.layout.fragment_search_user,container,false);
             recyclerView=view.findViewById(R.id.searchUserRecycleView);
             recyclerView.setHasFixedSize(true);
-
             layoutManager=new LinearLayoutManager(getActivity());
             recyclerView.setLayoutManager(layoutManager);
             list=new ArrayList<>();

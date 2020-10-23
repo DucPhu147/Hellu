@@ -6,7 +6,6 @@
     android:layout_height="match_parent"
     android:focusable="true"
     android:focusableInTouchMode="true"
-    android:background="#fff"
     tools:context="com.example.hellu.AddGroupMemberActivity">
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
@@ -33,8 +32,15 @@
         android:paddingVertical="20px"
         android:layout_marginTop="20px"
         android:clipToPadding="false"
+        android:overScrollMode="never"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
         android:layout_below="@id/toolbar"/>
+    <ProgressBar
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/progressBar"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"/>
     <androidx.recyclerview.widget.RecyclerView
         android:layout_width="match_parent"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"

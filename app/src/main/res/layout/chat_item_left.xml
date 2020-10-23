@@ -57,14 +57,30 @@
             android:id="@+id/userChat_Msg"
             android:text="123213123"/>
         <ImageView
-            android:scaleType="fitCenter"
             android:adjustViewBounds="true"
             android:layout_width="wrap_content"
-            android:minWidth="170dp"
-            android:layout_height="wrap_content"
+            android:layout_height="600px"
+            android:visibility="gone"
             android:transitionName="imageTransition"
-            android:background="@drawable/msg_image_border"
             android:id="@+id/userChat_ImageMsg"/>
+        <FrameLayout
+            android:layout_width="wrap_content"
+            android:layout_height="600px"
+            android:visibility="gone"
+            android:id="@+id/videoMsgWrapper">
+            <VideoView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:transitionName="imageTransition"
+                android:id="@+id/userChat_VideoMsg"/>
+            <ImageButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:background="@android:color/transparent"
+                android:id="@+id/videoViewControlButton"
+                android:src="@drawable/ic_round_play_circle_outline_24"/>
+        </FrameLayout>
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

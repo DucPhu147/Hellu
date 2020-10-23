@@ -15,6 +15,7 @@ import android.widget.ImageView;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.VideoView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -37,7 +38,6 @@ import com.example.hellu.Model.Group;
 import com.example.hellu.Model.Message;
 import com.example.hellu.Model.User;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -73,7 +73,7 @@ public class MessageActivity extends AppCompatActivity {
     TextView txtUserName, txtSubText;
     ConstraintLayout imgFromGalleryWrapper;
     View rootView;
-    ImageView imgFromGallery, removeImgFromGallery;
+    ImageView imgFromGallery, removeMediaFromGallery;
     EmojiconEditText editTextMessage;
     ImageButton btnSend, btnOpenGallery, btnEmoji;
     DatabaseReference reference;
@@ -86,16 +86,17 @@ public class MessageActivity extends AppCompatActivity {
     int IS_DESTROY = 0;
     String chatID, chatUserName, path;
     boolean isCurrentTypeIsGroup = false;
-    Uri imageUri;
-    String imgURL;
+    Uri fileUri;
+    String fileUrl;
     User myCurrentUser;
     APIService apiService;
     boolean isNotify = false;
-    Bitmap imageBitmap;
-    boolean isPermGranted=false;
+    Bitmap fileBitmap;
+    boolean isPermGranted;
     User currentChatUser;
     Group currentChatGroup;
-    private final static int IMAGE_REQUEST = 1, CAMERA_REQUEST = 2,FILE_REQUEST=3,STORAGE_REQUEST=123;
+    VideoView videoFromGallery;
+    private final static int IMAGE_REQUEST = 1, CAMERA_REQUEST = 2,VIDEO_REQUEST=3, PERM_REQUEST =123;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -107,10 +108,10 @@ public class MessageActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setElevation(3);
 
+        //vuốt activity sang phải để đóng
         Slidr.attach(this);
-        //getWindow().setSharedElementEnterTransition(TransitionInflater.from(this).inflateTransition(R.transition.shared_element_transition));
-        //overridePendingTransition(R.anim.enter_anim,R.anim.exit_anim);
 
+        //api dành cho notification
         apiService = Client.getClient("https://fcm.googleapis.com/").create(APIService.class);
 
         recyclerView = findViewById(R.id.messageRecycleView);
@@ -127,7 +128,8 @@ public class MessageActivity extends AppCompatActivity {
         btnOpenGallery = findViewById(R.id.btnOpenGallery);
         imgFromGalleryWrapper = findViewById(R.id.imgFromGalleryWrapper);
         imgFromGallery = findViewById(R.id.imgFromGallery);
-        removeImgFromGallery = findViewById(R.id.removeImgFromGallery);
+        videoFromGallery=findViewById(R.id.videoFromGallery);
+        removeMediaFromGallery = findViewById(R.id.removeMediaFromGallery);
         btnSend = findViewById(R.id.btnSendMessage);
         btnEmoji = findViewById(R.id.btnEmoji);
         viewUserStatus = findViewById(R.id.userMessage_status);
@@ -236,6 +238,12 @@ public class MessageActivity extends AppCompatActivity {
             }
         });
         setSeenMessage();
+        //xin permission từ hệ thống
+        String[] permissions={Manifest.permission.CAMERA,Manifest.permission.READ_EXTERNAL_STORAGE,Manifest.permission.WRITE_EXTERNAL_STORAGE};
+        if(EasyPermissions.hasPermissions(this,permissions))
+            isPermGranted=true;
+        else
+            isPermGranted=false;
         btnOpenGallery.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -260,11 +268,11 @@ public class MessageActivity extends AppCompatActivity {
                                 startActivityForResult(intent, CAMERA_REQUEST);
                             }else
                                 requestPermissions();
-                        } else if (item.getItemId() == R.id.files) {
+                        } else if (item.getItemId() == R.id.video) {
                             if(isPermGranted) {
                                 Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-                                intent.setType("*/*");
-                                startActivityForResult(intent, FILE_REQUEST);
+                                intent.setType("video/*");
+                                startActivityForResult(intent, VIDEO_REQUEST);
                             }else
                                 requestPermissions();
                         }
@@ -273,7 +281,7 @@ public class MessageActivity extends AppCompatActivity {
                 });
             }
         });
-        removeImgFromGallery.setOnClickListener(new View.OnClickListener() {
+        removeMediaFromGallery.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 editTextMessage.setVisibility(View.VISIBLE);
@@ -380,7 +388,12 @@ public class MessageActivity extends AppCompatActivity {
         hashMap.put("timestamp", ServerValue.TIMESTAMP); //lấy thời gian online bằng firebase
         DatabaseReference ref = FirebaseDatabase.getInstance().getReference().child("Messages").child(path).push();
         hashMap.put("id", ref.getKey());
-        if (imgFromGalleryWrapper.getVisibility() == View.VISIBLE) { //nếu định gửi ảnh
+        if (videoFromGallery.getVisibility() == View.VISIBLE) { //nếu định gửi ảnh
+            hashMap.put("type", "video");
+            imgFromGalleryWrapper.setVisibility(View.GONE);
+            uploadImage(ref, hashMap);
+        }
+        else if(imgFromGallery.getVisibility() == View.VISIBLE){
             hashMap.put("type", "image");
             imgFromGalleryWrapper.setVisibility(View.GONE);
             uploadImage(ref, hashMap);
@@ -432,16 +445,16 @@ public class MessageActivity extends AppCompatActivity {
                             .enqueue(new Callback<MyResponse>() {
                                 @Override
                                 public void onResponse(Call<MyResponse> call, Response<MyResponse> response) {
-                                    if (response.code() == 200) {
+                                    /*if (response.code() == 200) {
                                         if (response.body().success != 1) {
-                                            Toast.makeText(MessageActivity.this, "Failed", Toast.LENGTH_SHORT).show();
+                                            Toast.makeText(MessageActivity.this, "Send notify failed!", Toast.LENGTH_SHORT).show();
                                         }
-                                    }
+                                    }*/
                                 }
 
                                 @Override
                                 public void onFailure(Call<MyResponse> call, Throwable t) {
-
+                                    Toast.makeText(MessageActivity.this, t.getMessage(), Toast.LENGTH_SHORT).show();
                                 }
                             });
 
@@ -466,32 +479,45 @@ public class MessageActivity extends AppCompatActivity {
         super.onDestroy();
         IS_DESTROY = 1;
     }
-    boolean isImageFromGallery=false;
+    boolean isFileUri =false;
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == IMAGE_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null) {
-            imageUri = data.getData();
+        if ((requestCode == IMAGE_REQUEST||requestCode==VIDEO_REQUEST) && resultCode == RESULT_OK && data != null && data.getData() != null) {
+            fileUri = data.getData();
             editTextMessage.setVisibility(View.GONE);
             imgFromGalleryWrapper.setVisibility(View.VISIBLE);
-            imgFromGallery.setImageURI(imageUri);
-            isImageFromGallery=true;
+            if(requestCode==IMAGE_REQUEST) {
+                imgFromGallery.setImageURI(fileUri);
+                videoFromGallery.setVisibility(View.GONE);
+            }else{
+                imgFromGallery.setVisibility(View.GONE);
+                try {
+                    videoFromGallery.setVideoURI(fileUri);
+                    //preview video vừa lấy
+                    videoFromGallery.seekTo(1);
+                }catch (Exception ex){
+                    Toast.makeText(MessageActivity.this,ex.getMessage(),Toast.LENGTH_SHORT).show();
+                }
+            }
+            isFileUri =true;
         } else if (requestCode == CAMERA_REQUEST && resultCode == RESULT_OK) {
-            imageBitmap = (Bitmap) data.getExtras().get("data");
+            fileBitmap = (Bitmap) data.getExtras().get("data");
             editTextMessage.setVisibility(View.GONE);
             imgFromGalleryWrapper.setVisibility(View.VISIBLE);
-            imgFromGallery.setImageBitmap(imageBitmap);
-            isImageFromGallery=false;
+            imgFromGallery.setImageBitmap(fileBitmap);
+            isFileUri =false;
         }
     }
 
+    //tải image lên firebase
     private void uploadImage(final DatabaseReference ref, final HashMap<String, Object> hashMap) {
         editTextMessage.setVisibility(View.VISIBLE);
         UploadFileToFirebase uploadFileToFirebase;
-        if(isImageFromGallery)
-            uploadFileToFirebase=new UploadFileToFirebase(MessageActivity.this,imageUri);
-        else
-            uploadFileToFirebase=new UploadFileToFirebase(MessageActivity.this,imageBitmap);
+        if(isFileUri)//nếu ảnh được chọn từ thư viện (ảnh sẽ là 1 uri)
+            uploadFileToFirebase=new UploadFileToFirebase(MessageActivity.this, fileUri);
+        else//nếu ảnh vừa được chụp từ camera (ảnh sẽ là bitmap)
+            uploadFileToFirebase=new UploadFileToFirebase(MessageActivity.this, fileBitmap);
         Toast.makeText(MessageActivity.this, "Đang gửi ảnh...", Toast.LENGTH_SHORT).show();
         Task<Uri> uploadTask=uploadFileToFirebase.uploadImage();
         uploadTask.addOnCompleteListener(new OnCompleteListener<Uri>() {
@@ -499,16 +525,13 @@ public class MessageActivity extends AppCompatActivity {
             public void onComplete(@NonNull Task<Uri> task) {
                 if (task.isSuccessful()) {
                     Uri downloadUri = task.getResult();
-                    imgURL = downloadUri.toString();
-                    hashMap.put("message", imgURL);
+                    fileUrl = downloadUri.toString();
+                    hashMap.put("message", fileUrl);
                     ref.setValue(hashMap);
-                    Toast.makeText(MessageActivity.this, "Gửi ảnh thành công ", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MessageActivity.this, "Gửi tệp tin thành công!", Toast.LENGTH_SHORT).show();
+                }else{
+                    Toast.makeText(MessageActivity.this,task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                 }
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Toast.makeText(MessageActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -524,6 +547,7 @@ public class MessageActivity extends AppCompatActivity {
         }
         return super.onCreateOptionsMenu(menu);
     }
+    //gửi yêu cầu video call
     void sendCallRequest(){
         final DatabaseReference reference=FirebaseDatabase.getInstance().getReference("Users");
         reference.child(chatID).addListenerForSingleValueEvent(new ValueEventListener() {
@@ -582,13 +606,13 @@ public class MessageActivity extends AppCompatActivity {
 
     }
 
-    @AfterPermissionGranted(STORAGE_REQUEST)
+    @AfterPermissionGranted(PERM_REQUEST)
     private void requestPermissions(){
         String[] permissions={Manifest.permission.CAMERA,Manifest.permission.READ_EXTERNAL_STORAGE,Manifest.permission.WRITE_EXTERNAL_STORAGE};
         if(EasyPermissions.hasPermissions(this,permissions)){
             isPermGranted=true;
         }else{
-            EasyPermissions.requestPermissions(this,"Read storage permission is needed...",STORAGE_REQUEST,permissions);
+            EasyPermissions.requestPermissions(this,"Read storage permission is needed...", PERM_REQUEST,permissions);
         }
     }
 }

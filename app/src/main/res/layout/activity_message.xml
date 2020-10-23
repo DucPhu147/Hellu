@@ -65,18 +65,23 @@
         android:paddingVertical="7dp"
         android:clipToPadding="false"
         android:layout_below="@id/toolbar"/>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1px"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_above="@+id/msgView"
+        android:background="#C5C5C5"/>
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:id="@+id/msgView"
-        app:elevation="8dp"
         android:paddingVertical="10px"
         android:background="@android:color/transparent"
         android:layout_alignParentBottom="true">
         <ImageButton
             android:layout_width="45dp"
-            android:src="@drawable/ic_round_photo_camera_24"
+            android:src="@drawable/ic_round_attach_file_24"
             android:id="@+id/btnOpenGallery"
             android:tint="@color/colorPrimary"
             app:layout_constraintLeft_toLeftOf="parent"
@@ -90,27 +95,35 @@
             android:layout_marginRight="90dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toRightOf="@+id/btnEmoji"
-            app:layout_constraintRight_toLeftOf="@+id/btnOpenGallery"
             android:visibility="gone"
+            app:layout_constraintRight_toLeftOf="@+id/btnOpenGallery"
             android:id="@+id/imgFromGalleryWrapper"
             android:paddingTop="20px">
-            <ImageView
-                android:layout_width="100dp"
-                android:layout_height="100dp"
-                android:src="@mipmap/ic_launcher"
-                android:id="@+id/imgFromGallery"
+            <FrameLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintLeft_toLeftOf="parent"
-                android:padding="5dp"/>
-            <ImageView
-                android:layout_width="20dp"
-                android:layout_height="20dp"
-                android:padding="1dp"
-                app:layout_constraintRight_toRightOf="@+id/imgFromGallery"
-                app:layout_constraintTop_toTopOf="@+id/imgFromGallery"
-                android:id="@+id/removeImgFromGallery"
-                android:background="@drawable/circle"
-                android:src="@drawable/ic_baseline_close_24"/>
+                app:layout_constraintLeft_toLeftOf="parent">
+                <ImageView
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    android:src="@mipmap/ic_launcher"
+                    android:id="@+id/imgFromGallery"
+                    android:padding="5dp"/>
+                <VideoView
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    android:id="@+id/videoFromGallery"
+                    android:layout_margin="5dp"/>
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:padding="1dp"
+                    android:layout_gravity="top|end"
+                    android:id="@+id/removeMediaFromGallery"
+                    android:background="@drawable/circle"
+                    android:src="@drawable/ic_baseline_close_24"/>
+            </FrameLayout>
         </androidx.constraintlayout.widget.ConstraintLayout>
         <hani.momanii.supernova_emoji_library.Helper.EmojiconEditText
             android:layout_width="match_parent"

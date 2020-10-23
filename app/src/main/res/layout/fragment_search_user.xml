@@ -4,12 +4,12 @@
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="#fff"
+    android:gravity="center"
+    android:orientation="vertical"
     tools:context="com.example.hellu.Fragment.SearchFragment">
     <!--android:layoutAnimation="@anim/layout_animation_fall_down"-->
-
     <androidx.recyclerview.widget.RecyclerView
         android:layout_width="match_parent"
         android:id="@+id/searchUserRecycleView"
         android:layout_height="match_parent"/>
-
 </LinearLayout>

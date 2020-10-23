@@ -58,7 +58,7 @@ public class LoginActivity extends AppCompatActivity {
                                 finish();
                             }else
                             {
-                                Toast.makeText(LoginActivity.this,"Đăng nhập thất bại!",Toast.LENGTH_SHORT).show();
+                                Toast.makeText(LoginActivity.this,task.getException().getMessage(),Toast.LENGTH_SHORT).show();
                             }
                         }
                     });
@@ -76,6 +76,7 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Intent intent=new Intent(LoginActivity.this,ResetPasswordActivity.class);
+                intent.putExtra("action","forgotPW");
                 startActivity(intent);
             }
         });

@@ -76,18 +76,24 @@ public class MainActivity extends AppCompatActivity {
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 switch (item.getItemId())
                 {
-                    case R.id.nav_account:
-                        Intent intent=new Intent(MainActivity.this, UserProfileActivity.class);
-                        intent.putExtra("id",firebaseUser.getUid());
+                    case R.id.nav_account: {
+                        Intent intent = new Intent(MainActivity.this, UserProfileActivity.class);
+                        intent.putExtra("id", firebaseUser.getUid());
                         startActivity(intent);
                         break;
-                    case R.id.nav_setting:
+                    }
+                    case R.id.nav_resetpw: {
+                        Intent intent = new Intent(MainActivity.this, ResetPasswordActivity.class);
+                        intent.putExtra("action","changePW");
+                        startActivity(intent);
                         break;
-                    case R.id.nav_signout: //Đăng xuất account khỏi server
+                    }
+                    case R.id.nav_signout: {//Đăng xuất account khỏi server
                         FirebaseAuth.getInstance().signOut();
-                        startActivity(new Intent(MainActivity.this,LoginActivity.class));
+                        startActivity(new Intent(MainActivity.this, LoginActivity.class));
                         finish();
                         break;
+                    }
                 }
                 return false;
             }

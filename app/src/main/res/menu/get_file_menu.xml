@@ -3,12 +3,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context=".MessageActivity">
     <item
+        android:id="@+id/video"
+        android:title="Video" />
+    <item
         android:id="@+id/camera"
-        android:title="Máy ảnh" />
+        android:title="Ảnh từ camera" />
     <item
         android:id="@+id/gallery"
-        android:title="Thư viện" />
-    <item
-        android:id="@+id/files"
-        android:title="Tệp tin" />
+        android:title="Ảnh từ thư viện" />
 </menu>

@@ -189,7 +189,7 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.Viewholder> {
                     SimpleDateFormat yearFormat=new SimpleDateFormat("yyyy");
                     //Nếu message này được gửi trong cùng ngày
                     if(dateFormat.format(System.currentTimeMillis()).equals(dateFormat.format(time)))
-                        hourFormat=new SimpleDateFormat("HH:mm");//17:05
+                        hourFormat=new SimpleDateFormat("'Hôm nay' HH:mm");//17:05
                     //Nếu message gửi trong cùng năm
                     else if(yearFormat.format(System.currentTimeMillis()).equals(yearFormat.format(time)))
                         hourFormat=new SimpleDateFormat("dd MMM");//04 thg 7
@@ -203,12 +203,17 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.Viewholder> {
                             txtMsg.setText("Bạn: " + lastMsg);
                         else if(type.equals("image"))
                             txtMsg.setText("Bạn đã gửi 1 ảnh");
+                        else if(type.equals("video"))
+                            txtMsg.setText("Bạn đã gửi 1 video");
                     }
                     else {
-                        if(type.equals("text"))
+                        if (type.equals("text"))
                             txtMsg.setText(lastMsg);
-                        else if(type.equals("image"))
-                            txtMsg.setText("Đã gửi 1 ảnh");}
+                        else if (type.equals("image"))
+                            txtMsg.setText("Đã gửi 1 ảnh");
+                        else if (type.equals("video"))
+                            txtMsg.setText("Đã gửi 1 video");
+                    }
                 }
                 lastMsg="default";
                 if(unreadCount==0){

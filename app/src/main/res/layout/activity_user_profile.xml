@@ -5,11 +5,11 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:background="#fff"
     tools:context="com.example.hellu.UserProfileActivity">
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
-        app:layout_collapseMode="parallax"
         android:layout_height="wrap_content"
         android:theme="@style/ToolbarPrimary"/>
     <androidx.constraintlayout.widget.ConstraintLayout

@@ -7,6 +7,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ProgressBar;
 import android.widget.SearchView;
 
 import androidx.annotation.NonNull;
@@ -40,6 +41,7 @@ public class AddGroupMemberActivity extends AppCompatActivity {
     SearchView searchView;
     MenuItem continueMenuItem;
     User currentUser;
+    ProgressBar progressBar;
     public static Activity thisActivity;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,6 +54,7 @@ public class AddGroupMemberActivity extends AppCompatActivity {
         getSupportActionBar().setTitle("Thêm thành viên");
         getSupportActionBar().setElevation(3);
         searchView=findViewById(R.id.selectUser_searchUser);
+        progressBar=findViewById(R.id.progressBar);
         recycle_chooseUser=findViewById(R.id.recycle_chooseUser);
         recycle_selectedUser=findViewById(R.id.recycle_selectedUser);
 
@@ -86,12 +89,11 @@ public class AddGroupMemberActivity extends AppCompatActivity {
                     chooseUserList.clear();
                     for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
                         User user = snapshot.getValue(User.class);
-                        assert user != null;
-                        assert firebaseUser != null;
                         if (!user.getId().equals(firebaseUser.getUid())) {
                             chooseUserList.add(user);
                         }
                     }
+                    progressBar.setVisibility(View.GONE);
                     chooseMemberAdapter.notifyDataSetChanged();
             }
             @Override

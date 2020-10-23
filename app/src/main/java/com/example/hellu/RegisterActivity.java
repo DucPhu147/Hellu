@@ -13,7 +13,6 @@ import androidx.appcompat.widget.Toolbar;
 
 import com.example.hellu.Class.LoadingDialog;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.AuthResult;
@@ -105,9 +104,9 @@ public class RegisterActivity extends AppCompatActivity {
         auth.createUserWithEmailAndPassword(email,pw).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
+                loadingDialog.dismissDialog();
                 if(task.isSuccessful())
                 {
-                    loadingDialog.dismissDialog();
                     FirebaseUser f=auth.getCurrentUser();
                     assert f!=null; //gần giống if
                     String userID=f.getUid();
@@ -130,13 +129,9 @@ public class RegisterActivity extends AppCompatActivity {
                             finish();
                         }
                     });
+                }else{
+                    Toast.makeText(RegisterActivity.this,task.getException().getMessage(),Toast.LENGTH_LONG).show();
                 }
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Toast.makeText(RegisterActivity.this,e.getMessage(),Toast.LENGTH_SHORT).show();
-                loadingDialog.dismissDialog();
             }
         });
     }

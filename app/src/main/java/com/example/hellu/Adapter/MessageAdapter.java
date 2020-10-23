@@ -8,10 +8,12 @@ import android.graphics.drawable.GradientDrawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.VideoView;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityOptionsCompat;
@@ -69,18 +71,28 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.Viewhold
             holder.txtMessage.setText(message.getMessage());
             holder.txtMessage.setVisibility(View.VISIBLE);
             holder.imgMsg.setVisibility(View.GONE);
-        }else if(message.getType().equals("image")){
+            holder.videoMsg.setVisibility(View.GONE);
+        }
+        else if(message.getType().equals("video")){
+            holder.videoMsgWrapper.setVisibility(View.VISIBLE);
+            changeFileMessageLayout(holder);
+            holder.videoMsg.setVideoPath(message.getMessage());
+            /*holder.videoMsg.setOnP(new MediaPlayer.OnCompletionListener() {
+                @Override
+                public void onCompletion(MediaPlayer mediaPlayer) {
+                    holder.videoMsgWrapper.setVisibility(View.VISIBLE);
+                }
+            });*/
+            holder.videoMsg.requestFocus();
+            holder.videoMsg.seekTo(1);
+            //holder.videoMsg.start();
+        }
+        else if(message.getType().equals("image")){
+            holder.imgMsg.setVisibility(View.VISIBLE);
+            changeFileMessageLayout(holder);
             Glide.with(context.getApplicationContext())
                     .load(message.getMessage())
                     .into(holder.imgMsg);
-            holder.txtMessage.setVisibility(View.GONE);
-            holder.imgMsg.setVisibility(View.VISIBLE);
-            holder.msgWrapper.setBackgroundColor(Color.TRANSPARENT);
-            holder.txtTimeStamp.setTextColor(context.getResources().getColor(R.color.colorBlackTransparent));
-            holder.msgWrapper.setPadding(0,
-                    holder.msgWrapper.getPaddingTop(),
-                    0,
-                    holder.msgWrapper.getPaddingBottom());
             holder.imgMsg.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -95,6 +107,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.Viewhold
                 }
             });
         }
+
         //hiện thời gian
         long time= message.getTimestamp();
         Date thisItemDate=new Date(time);
@@ -108,7 +121,8 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.Viewhold
         SimpleDateFormat hourFormat=new SimpleDateFormat("HH:mm");//17:05
         holder.txtTimeStamp.setText(hourFormat.format(thisItemDate));
         GradientDrawable drawable=new GradientDrawable();
-        if(!message.getType().equals("image")) {
+        //bo viền của message item đầu tiên
+        if(message.getType().equals("text")) {
             drawable = (GradientDrawable) holder.msgWrapper.getBackground().mutate();
             if (isViewRight)//top-left,top-right,bottom-right,bottom-left
                 drawable.setCornerRadii(new float[]{50, 50, 50, 50, 15, 15, 50, 50});
@@ -121,7 +135,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.Viewhold
             Date currentItemDate = new Date(list.get(position).getTimestamp());
             if (dateFormat.format(currentItemDate).equals(dateFormat.format(previousItemDate)))
                 holder.dateWrapper.setVisibility(View.GONE);
-            //tạo và xóa góc bo tròn của các item chat liền nhau
+            //tạo và xóa góc bo tròn của các item message liền nhau
             if (!list.get(position).getType().equals("image")){
                 if(list.get(position).getSender().equals(list.get(position-1).getSender())
                         &&holder.dateWrapper.getVisibility()==View.GONE) {
@@ -134,7 +148,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.Viewhold
                 }
                 holder.msgWrapper.setBackground(drawable);
             }
-            //tạo khoảng trắng giữa dòng chat của mình và dòng chat ng khác
+            //tạo khoảng cách giữa dòng chat của mình và dòng chat ng khác
             if (!list.get(position - 1).getSender().equals(list.get(position).getSender())) {
                 //Nếu đã hiện ngày tháng bên trên message thì không tạo khoảng trắng nữa
                 if (holder.dateWrapper.getVisibility() == View.GONE) {
@@ -193,7 +207,8 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.Viewhold
                 //holder.setIsRecyclable(false);
             } else {
                 DatabaseReference ref = FirebaseDatabase.getInstance().getReference("Users").child(message.getSender()).child("imageURL");
-                ref.addValueEventListener(new ValueEventListener() {//chỉ đọc 1 lần (ko update đc như addValueEventListener)
+                ref.addListenerForSingleValueEvent(new ValueEventListener() {
+                    //chỉ load ảnh 1 lần (nếu thoát activity và mở lại thì sẽ load ảnh lại từ đầu)
                     @Override
                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                         String URL = dataSnapshot.getValue(String.class);
@@ -213,6 +228,15 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.Viewhold
         }
 
     }
+    private void changeFileMessageLayout(Viewholder holder){
+        holder.txtMessage.setVisibility(View.GONE);
+        holder.msgWrapper.setBackgroundColor(Color.TRANSPARENT);
+        holder.txtTimeStamp.setTextColor(context.getResources().getColor(R.color.colorBlackTransparent));
+        holder.msgWrapper.setPadding(0,
+                holder.msgWrapper.getPaddingTop(),
+                0,
+                holder.msgWrapper.getPaddingBottom());
+    }
     public class Viewholder extends RecyclerView.ViewHolder{
 
         public TextView txtSeen,txtTimeStamp,txtDate;
@@ -220,6 +244,8 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.Viewhold
         public LinearLayout dateWrapper,msgWrapper;
         public CircleImageView guestImg;
         public ImageView imgMsg;
+        public FrameLayout videoMsgWrapper;
+        public VideoView videoMsg;
         public Viewholder(@NonNull View itemView) {
             super(itemView);
             txtMessage =itemView.findViewById(R.id.userChat_Msg);
@@ -230,6 +256,8 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.Viewhold
             txtDate=itemView.findViewById(R.id.userChat_Date);
             dateWrapper=itemView.findViewById(R.id.dateWrapper);
             msgWrapper=itemView.findViewById(R.id.msgWrapper);
+            videoMsg=itemView.findViewById(R.id.userChat_VideoMsg);
+            videoMsgWrapper=itemView.findViewById(R.id.videoMsgWrapper);
         }
     }
 
