@@ -5,10 +5,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
+import android.media.MediaPlayer;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -75,17 +77,31 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.Viewhold
         }
         else if(message.getType().equals("video")){
             holder.videoMsgWrapper.setVisibility(View.VISIBLE);
+            holder.videoMsgWrapper.setAlpha(0);
             changeFileMessageLayout(holder);
             holder.videoMsg.setVideoPath(message.getMessage());
-            /*holder.videoMsg.setOnP(new MediaPlayer.OnCompletionListener() {
-                @Override
-                public void onCompletion(MediaPlayer mediaPlayer) {
-                    holder.videoMsgWrapper.setVisibility(View.VISIBLE);
-                }
-            });*/
             holder.videoMsg.requestFocus();
-            holder.videoMsg.seekTo(1);
-            //holder.videoMsg.start();
+            holder.videoMsg.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+                @Override
+                public void onPrepared(final MediaPlayer mediaPlayer) {
+                    holder.videoMsgWrapper.setAlpha(1);
+                    mediaPlayer.seekTo(1);
+                    holder.videoViewControlButton.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            if(!holder.videoMsg.isPlaying()){
+                                mediaPlayer.start();
+                                holder.videoViewControlButton.setImageResource(R.drawable.ic_round_pause_circle_outline_24);
+                            }
+                            else {
+                                //holder.videoMsg.pause();
+                                mediaPlayer.pause();
+                                holder.videoViewControlButton.setImageResource(R.drawable.ic_round_play_circle_outline_24);
+                            }
+                        }
+                    });
+                }
+            });
         }
         else if(message.getType().equals("image")){
             holder.imgMsg.setVisibility(View.VISIBLE);
@@ -244,6 +260,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.Viewhold
         public LinearLayout dateWrapper,msgWrapper;
         public CircleImageView guestImg;
         public ImageView imgMsg;
+        public ImageButton videoViewControlButton;
         public FrameLayout videoMsgWrapper;
         public VideoView videoMsg;
         public Viewholder(@NonNull View itemView) {
@@ -258,6 +275,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.Viewhold
             msgWrapper=itemView.findViewById(R.id.msgWrapper);
             videoMsg=itemView.findViewById(R.id.userChat_VideoMsg);
             videoMsgWrapper=itemView.findViewById(R.id.videoMsgWrapper);
+            videoViewControlButton=itemView.findViewById(R.id.videoViewControlButton);
         }
     }
 
