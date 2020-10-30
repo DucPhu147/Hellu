@@ -109,6 +109,7 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.Viewholder> {
             ref.addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    //nếu tồn tại group thì sẽ lấy thông tin
                     if (dataSnapshot.exists()) {
                         Group group = dataSnapshot.getValue(Group.class);
                         holder.userName.setText(group.getName());
@@ -116,6 +117,11 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.Viewholder> {
                             holder.userImage.setImageResource(R.mipmap.ic_launcher_round);
                         else
                             Glide.with(context.getApplicationContext()).load(group.getImageURL()).into(holder.userImage);
+                    }//nếu group ko tồn tại sẽ tự động xóa khỏi chat ID list
+                    else{
+                        FirebaseUser firebaseUser=FirebaseAuth.getInstance().getCurrentUser();
+                        DatabaseReference chatIDRef=FirebaseDatabase.getInstance().getReference("ChatIDList").child(firebaseUser.getUid());
+                        chatIDRef.child(id).removeValue();
                     }
                 }
 
@@ -214,6 +220,9 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.Viewholder> {
                         else if (type.equals("video"))
                             txtMsg.setText("Đã gửi 1 video");
                     }
+                }
+                else{
+                    txtMsg.setText("Các bạn đã được kết nối");
                 }
                 lastMsg="default";
                 if(unreadCount==0){

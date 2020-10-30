@@ -38,7 +38,6 @@ public class MyFirebaseMessaging extends FirebaseMessagingService {
     private void updateToken(String refreshToken) {
         if (FirebaseAuth.getInstance().getCurrentUser() != null){
             FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-
             DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Tokens");
             Token token = new Token(refreshToken);
             reference.child(firebaseUser.getUid()).setValue(token);

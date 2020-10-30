@@ -18,12 +18,15 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.example.hellu.Adapter.GroupMemberAdapter;
 import com.example.hellu.Class.UploadFileToFirebase;
+import com.example.hellu.Model.Group;
 import com.example.hellu.Model.User;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputLayout;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
@@ -43,6 +46,7 @@ public class GroupDetailActivity extends AppCompatActivity {
     User currentUser;
     String groupID;
     Uri imageUri;
+    Group groupObjectForUpdate;
     private final static int IMAGE_REQUEST=1;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,7 +72,15 @@ public class GroupDetailActivity extends AppCompatActivity {
 
         memberList=new ArrayList<>();
         memberList= (List<String>) getIntent().getSerializableExtra("listMember");
-
+        if(getIntent().getSerializableExtra("groupObjectForUpdate")!=null){
+            groupObjectForUpdate=(Group)getIntent().getSerializableExtra("groupObjectForUpdate");
+            Glide.with(GroupDetailActivity.this)
+                    .load(groupObjectForUpdate.getImageURL())
+                    .into(groupImage);
+            inputLayoutGroupName.getEditText().setText(groupObjectForUpdate.getName());
+            groupID=groupObjectForUpdate.getId();
+        }
+        //groupImage.image
         memberCount.setText("Thành viên: "+memberList.size());
         currentUser=(User)getIntent().getSerializableExtra("currentUser");
         groupMemberAdapter =new GroupMemberAdapter(GroupDetailActivity.this,memberList);
@@ -88,51 +100,68 @@ public class GroupDetailActivity extends AppCompatActivity {
     private void createGroup() {
         //Lấy ID tự tạo của firebase
         HashMap<String, Object> hashMap = new HashMap<>();
-        hashMap.put("owner", memberList.get(0));
-        String groupName;
-        if (inputLayoutGroupName.getEditText().getText().toString().trim().equals("")) {
-            groupName = "Nhóm của " + currentUser.getUsername();
-        } else {
-            groupName = inputLayoutGroupName.getEditText().getText().toString().trim();
-        }
-        hashMap.put("name", groupName.trim());
-        hashMap.put("search", groupName.toLowerCase().trim() + " " + groupName.trim());
-        hashMap.put("imageURL", "default");
-        groupID= "Group_" + UUID.randomUUID() + System.currentTimeMillis();//tự tạo id riêng với khả năng bị trùng thấp nhất
-        hashMap.put("id", groupID);
-
-        String member="";
-        DatabaseReference groupRef = FirebaseDatabase.getInstance().getReference("Groups").child(groupID);
-        for(int i=0;i<memberList.size();i++){
-            member+=memberList.get(i)+",";
-            //Tạo chat user ID cho các member
-            DatabaseReference ref=FirebaseDatabase.getInstance().getReference("ChatIDList")
-                    .child(memberList.get(i))//ID của mình
-                    .child(groupID);//ID của group
-            ref.child("id").setValue(groupID);
-        }
-        hashMap.put("member", member);
-
-        groupRef.setValue(hashMap).addOnCompleteListener(new OnCompleteListener<Void>() {
-            @Override
-            public void onComplete(@NonNull Task<Void> task) {
-                if(task.isSuccessful()){
-                    //tạo nhóm xong mới bắt đầu update ảnh đại diện nhóm
-                    if(imageUri!=null)
-                        uploadImage();
-                    else {
-                        startMessageActivity();
-                    }
-                }else{
-                    Toast.makeText(GroupDetailActivity.this,task.getException().getMessage(),Toast.LENGTH_SHORT).show();
-                }
+        //nếu groupObjectForUpdate là null thì là tạo group mới, còn ko là update group
+        if(getIntent().getSerializableExtra("groupObjectForUpdate")==null) {
+            hashMap.put("owner", memberList.get(0));
+            String groupName;
+            if (inputLayoutGroupName.getEditText().getText().toString().trim().equals("")) {
+                groupName = "Nhóm của " + currentUser.getUsername();
+            } else {
+                groupName = inputLayoutGroupName.getEditText().getText().toString().trim();
             }
-        });
+            hashMap.put("name", groupName.trim());
+            hashMap.put("search", groupName.toLowerCase().trim() + " " + groupName.trim());
+            hashMap.put("imageURL", "default");
+            groupID = "Group_" + UUID.randomUUID() + System.currentTimeMillis();//tự tạo id riêng với khả năng bị trùng thấp nhất
+            hashMap.put("id", groupID);
+
+            String member = "";
+            DatabaseReference groupRef = FirebaseDatabase.getInstance().getReference("Groups").child(groupID);
+            for (int i = 0; i < memberList.size(); i++) {
+                member += memberList.get(i) + ",";
+                //Tạo chat user ID cho các member
+                DatabaseReference ref = FirebaseDatabase.getInstance().getReference("ChatIDList")
+                        .child(memberList.get(i))//ID của mình
+                        .child(groupID);//ID của group
+                ref.child("id").setValue(groupID);
+            }
+            hashMap.put("member", member);
+            //sau khi thêm thành công group vào database thì sẽ up ảnh group hoặc chuyển luôn sang message activity
+            groupRef.setValue(hashMap).addOnCompleteListener(new OnCompleteListener<Void>() {
+                @Override
+                public void onComplete(@NonNull Task<Void> task) {
+                    if (task.isSuccessful()) {
+                        startMessageActivity();
+                        if (imageUri != null)
+                            uploadImage();
+                    } else {
+                        Toast.makeText(GroupDetailActivity.this, task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
+        }else{
+            hashMap.put("name",inputLayoutGroupName.getEditText().getText().toString());
+            if(imageUri!=null)
+                uploadImage();
+            DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Groups").child(groupID);
+            reference.updateChildren(hashMap);
+            finish();
+        }
     }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater menuInflater=getMenuInflater();
-        menuInflater.inflate(R.menu.activity_create_group_menu,menu);
+        if(groupObjectForUpdate.getOwner()!=null) {
+            if(groupObjectForUpdate.getOwner().equals(FirebaseAuth.getInstance().getCurrentUser().getUid())) {
+                MenuInflater menuInflater = getMenuInflater();
+                menuInflater.inflate(R.menu.activity_create_group_menu, menu);
+            }else{//nếu ko phải chủ group thì sẽ không chỉnh ảnh hay chỉnh tên group đươc
+                openGalery.setVisibility(View.GONE);
+                inputLayoutGroupName.getEditText().setEnabled(false);
+            }
+        }else{
+            MenuInflater menuInflater = getMenuInflater();
+            menuInflater.inflate(R.menu.activity_create_group_menu, menu);
+        }
         return super.onCreateOptionsMenu(menu);
     }
     private void startMessageActivity(){
@@ -169,7 +198,6 @@ public class GroupDetailActivity extends AppCompatActivity {
                 else{
                     Toast.makeText(GroupDetailActivity.this,task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                 }
-                startMessageActivity();
             }
         });
     }

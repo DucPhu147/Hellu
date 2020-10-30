@@ -71,7 +71,7 @@ import retrofit2.Response;
 public class MessageActivity extends AppCompatActivity {
     CircleImageView imgViewUserImage;
     TextView txtUserName, txtSubText;
-    ConstraintLayout imgFromGalleryWrapper;
+    ConstraintLayout fileWrapper;
     View rootView;
     ImageView imgFromGallery, removeMediaFromGallery;
     EmojiconEditText editTextMessage;
@@ -126,7 +126,7 @@ public class MessageActivity extends AppCompatActivity {
         txtSubText = findViewById(R.id.userMessage_subText);
         editTextMessage = findViewById(R.id.editMessage);
         btnOpenGallery = findViewById(R.id.btnOpenGallery);
-        imgFromGalleryWrapper = findViewById(R.id.imgFromGalleryWrapper);
+        fileWrapper = findViewById(R.id.imgFromGalleryWrapper);
         imgFromGallery = findViewById(R.id.imgFromGallery);
         videoFromGallery=findViewById(R.id.videoFromGallery);
         removeMediaFromGallery = findViewById(R.id.removeMediaFromGallery);
@@ -173,7 +173,7 @@ public class MessageActivity extends AppCompatActivity {
         reference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                if (dataSnapshot.getValue() != null) {
+                if (dataSnapshot.exists()) {
                     if (!isCurrentTypeIsGroup) { //nếu type là user
                         currentChatUser = dataSnapshot.getValue(User.class);
                         txtUserName.setText(currentChatUser.getUsername());
@@ -217,6 +217,9 @@ public class MessageActivity extends AppCompatActivity {
                                 Glide.with(MessageActivity.this).load(currentChatGroup.getImageURL()).into(imgViewUserImage);
                         }
                     }
+                }else{
+                    finish();
+                    //Toast.makeText(MessageActivity.this,"Nhóm không tồn tại",Toast.LENGTH_SHORT).show();
                 }
             }
 
@@ -285,7 +288,7 @@ public class MessageActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 editTextMessage.setVisibility(View.VISIBLE);
-                imgFromGalleryWrapper.setVisibility(View.GONE);
+                fileWrapper.setVisibility(View.GONE);
             }
         });
         EmojIconActions emojIcon = new EmojIconActions(this, rootView, editTextMessage, btnEmoji);
@@ -306,6 +309,8 @@ public class MessageActivity extends AppCompatActivity {
             else {
                 intent = new Intent(MessageActivity.this, GroupDetailActivity.class);
                 List<String> memberList= Arrays.asList(currentChatGroup.getMember().split(","));
+                intent.putExtra("groupObjectForUpdate", (Serializable) currentChatGroup);
+                //intent.putExtra("action", "update");
                 intent.putExtra("listMember", (Serializable) memberList);
                 intent.putExtra("currentUser",myCurrentUser);
             }
@@ -388,16 +393,17 @@ public class MessageActivity extends AppCompatActivity {
         hashMap.put("timestamp", ServerValue.TIMESTAMP); //lấy thời gian online bằng firebase
         DatabaseReference ref = FirebaseDatabase.getInstance().getReference().child("Messages").child(path).push();
         hashMap.put("id", ref.getKey());
-        if (videoFromGallery.getVisibility() == View.VISIBLE) { //nếu định gửi ảnh
-            hashMap.put("type", "video");
-            imgFromGalleryWrapper.setVisibility(View.GONE);
-            uploadImage(ref, hashMap);
-        }
-        else if(imgFromGallery.getVisibility() == View.VISIBLE){
-            hashMap.put("type", "image");
-            imgFromGalleryWrapper.setVisibility(View.GONE);
-            uploadImage(ref, hashMap);
-        } else {
+        if(fileWrapper.getVisibility()==View.VISIBLE) {
+            if (videoFromGallery.getVisibility() == View.VISIBLE) { //nếu định gửi video
+                hashMap.put("type", "video");
+                fileWrapper.setVisibility(View.GONE);
+                uploadImage(ref, hashMap);
+            } else if (imgFromGallery.getVisibility() == View.VISIBLE) { //nếu định gửi video
+                hashMap.put("type", "image");
+                fileWrapper.setVisibility(View.GONE);
+                uploadImage(ref, hashMap);
+            }
+        }else {
             if (!message.equals("")) {
                 hashMap.put("message", message);
                 hashMap.put("type", "text");
@@ -418,12 +424,14 @@ public class MessageActivity extends AppCompatActivity {
                     .child(receiver);   //ID của mình
             chatRef2.child("id").setValue(receiver);
         }else{
-            List<String> memberList= Arrays.asList(currentChatGroup.getMember().split(","));
-            for(int i=0;i<memberList.size();i++){
-                DatabaseReference chatRef = FirebaseDatabase.getInstance().getReference("ChatIDList")
-                        .child(memberList.get(i)) //ID của member
-                        .child(receiver);   //ID group
-                chatRef.child("id").setValue(receiver);
+            if(currentChatGroup!=null) {
+                List<String> memberList = Arrays.asList(currentChatGroup.getMember().split(","));
+                for (int i = 0; i < memberList.size(); i++) {
+                    DatabaseReference chatRef = FirebaseDatabase.getInstance().getReference("ChatIDList")
+                            .child(memberList.get(i)) //ID của member
+                            .child(receiver);   //ID group
+                    chatRef.child("id").setValue(receiver);
+                }
             }
         }
         if (isNotify)
@@ -445,11 +453,11 @@ public class MessageActivity extends AppCompatActivity {
                             .enqueue(new Callback<MyResponse>() {
                                 @Override
                                 public void onResponse(Call<MyResponse> call, Response<MyResponse> response) {
-                                    /*if (response.code() == 200) {
+                                    if (response.code() == 200) {
                                         if (response.body().success != 1) {
                                             Toast.makeText(MessageActivity.this, "Send notify failed!", Toast.LENGTH_SHORT).show();
                                         }
-                                    }*/
+                                    }
                                 }
 
                                 @Override
@@ -486,7 +494,7 @@ public class MessageActivity extends AppCompatActivity {
         if ((requestCode == IMAGE_REQUEST||requestCode==VIDEO_REQUEST) && resultCode == RESULT_OK && data != null && data.getData() != null) {
             fileUri = data.getData();
             editTextMessage.setVisibility(View.GONE);
-            imgFromGalleryWrapper.setVisibility(View.VISIBLE);
+            fileWrapper.setVisibility(View.VISIBLE);
             if(requestCode==IMAGE_REQUEST) {
                 imgFromGallery.setImageURI(fileUri);
                 videoFromGallery.setVisibility(View.GONE);
@@ -504,7 +512,7 @@ public class MessageActivity extends AppCompatActivity {
         } else if (requestCode == CAMERA_REQUEST && resultCode == RESULT_OK) {
             fileBitmap = (Bitmap) data.getExtras().get("data");
             editTextMessage.setVisibility(View.GONE);
-            imgFromGalleryWrapper.setVisibility(View.VISIBLE);
+            fileWrapper.setVisibility(View.VISIBLE);
             imgFromGallery.setImageBitmap(fileBitmap);
             isFileUri =false;
         }

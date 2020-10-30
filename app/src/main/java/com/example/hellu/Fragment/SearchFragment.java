@@ -56,14 +56,16 @@ public class SearchFragment extends Fragment {
         query.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                list.clear();
-                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                    User user = snapshot.getValue(User.class);
-                    if (!user.getId().equals(firebaseUser.getUid())) {
-                        list.add(user.getId());
+                if (dataSnapshot.exists()) {
+                    list.clear();
+                    for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                        User user = snapshot.getValue(User.class);
+                        if (!user.getId().equals(firebaseUser.getUid())) {
+                            list.add(user.getId());
+                        }
                     }
+                    searchAdapter.notifyDataSetChanged();
                 }
-                searchAdapter.notifyDataSetChanged();
             }
 
             @Override
@@ -77,15 +79,14 @@ public class SearchFragment extends Fragment {
         query2.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                    Group group = snapshot.getValue(Group.class);
-                    if (!group.getId().equals(firebaseUser.getUid())) {
+                if (dataSnapshot.exists()) {
+                    for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                        Group group = snapshot.getValue(Group.class);
                         list.add(group.getId());
                     }
+                    searchAdapter.notifyDataSetChanged();
                 }
-                searchAdapter.notifyDataSetChanged();
             }
-
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
 

@@ -47,16 +47,18 @@ public class GroupMemberAdapter  extends RecyclerView.Adapter<GroupMemberAdapter
         ref.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                User myUser=snapshot.getValue(User.class);
-                holder.userName.setText(myUser.getUsername());
+                if (snapshot.exists()) {
+                    User myUser = snapshot.getValue(User.class);
+                    holder.userName.setText(myUser.getUsername());
 
-                //holder.userMsg.setText(myUser.getEmail());
-                if (myUser.getImageURL().equals("default"))
-                    holder.userImage.setImageResource(R.mipmap.ic_launcher_round);
-                else
-                    Glide.with(context.getApplicationContext()).load(myUser.getImageURL()).into(holder.userImage);
-                holder.userSubText.setText(myUser.getEmail());
-                holder.usersCheckBox.setVisibility(View.GONE);
+                    //holder.userMsg.setText(myUser.getEmail());
+                    if (myUser.getImageURL().equals("default"))
+                        holder.userImage.setImageResource(R.mipmap.ic_launcher_round);
+                    else
+                        Glide.with(context.getApplicationContext()).load(myUser.getImageURL()).into(holder.userImage);
+                    holder.userSubText.setText(myUser.getEmail());
+                    holder.usersCheckBox.setVisibility(View.GONE);
+                }
             }
             @Override
             public void onCancelled(@NonNull DatabaseError error) {

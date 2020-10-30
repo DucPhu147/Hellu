@@ -61,12 +61,14 @@ public class ChatFragment extends Fragment {
         reference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                IDList.clear();
-                for(DataSnapshot snapshot:dataSnapshot.getChildren()){
-                    ChatIDList c=snapshot.getValue(ChatIDList.class);
-                    IDList.add(c.getId());
+                if (dataSnapshot.exists()) {
+                    IDList.clear();
+                    for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                        ChatIDList c = snapshot.getValue(ChatIDList.class);
+                        IDList.add(c.getId());
+                    }
+                    chatAdapter.notifyDataSetChanged();
                 }
-                chatAdapter.notifyDataSetChanged();
             }
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {

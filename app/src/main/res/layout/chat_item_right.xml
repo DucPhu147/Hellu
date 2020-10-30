@@ -69,7 +69,7 @@
             android:id="@+id/userChat_ImageMsg"/>
         <FrameLayout
             android:layout_width="wrap_content"
-            android:layout_height="50px"
+            android:layout_height="600px"
             android:visibility="gone"
             android:id="@+id/videoMsgWrapper">
             <VideoView

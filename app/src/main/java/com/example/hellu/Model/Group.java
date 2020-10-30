@@ -1,6 +1,8 @@
 package com.example.hellu.Model;
 
-public class Group {
+import java.io.Serializable;
+
+public class Group implements Serializable {
     private String owner;
     private String name;
     private String imageURL;

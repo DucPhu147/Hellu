@@ -98,13 +98,15 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.Viewholder
             ref.addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                    Group group=dataSnapshot.getValue(Group.class);
-                    holder.userName.setText(group.getName());
-                    if(group.getImageURL().equals("default"))
-                        holder.userImage.setImageResource(R.mipmap.ic_launcher_round);
-                    else
-                        Glide.with(context.getApplicationContext()).load(group.getImageURL()).into(holder.userImage);
-                    holder.userMsg.setText(group.getMember().split(",").length+" thành viên");
+                    if(dataSnapshot.exists()) {
+                        Group group = dataSnapshot.getValue(Group.class);
+                        holder.userName.setText(group.getName());
+                        if (group.getImageURL().equals("default"))
+                            holder.userImage.setImageResource(R.mipmap.ic_launcher_round);
+                        else
+                            Glide.with(context.getApplicationContext()).load(group.getImageURL()).into(holder.userImage);
+                        holder.userMsg.setText(group.getMember().split(",").length + " thành viên");
+                    }
                 }
 
                 @Override
