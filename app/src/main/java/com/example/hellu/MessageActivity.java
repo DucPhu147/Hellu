@@ -29,11 +29,6 @@ import com.bumptech.glide.Glide;
 import com.example.hellu.Adapter.MessageAdapter;
 import com.example.hellu.Class.UploadFileToFirebase;
 import com.example.hellu.MessageNotification.APIService;
-import com.example.hellu.MessageNotification.Client;
-import com.example.hellu.MessageNotification.Data;
-import com.example.hellu.MessageNotification.MyResponse;
-import com.example.hellu.MessageNotification.Sender;
-import com.example.hellu.MessageNotification.Token;
 import com.example.hellu.Model.Group;
 import com.example.hellu.Model.Message;
 import com.example.hellu.Model.User;
@@ -46,7 +41,6 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.Query;
 import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.ValueEventListener;
 import com.r0adkll.slidr.Slidr;
@@ -64,9 +58,6 @@ import hani.momanii.supernova_emoji_library.Actions.EmojIconActions;
 import hani.momanii.supernova_emoji_library.Helper.EmojiconEditText;
 import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.EasyPermissions;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 public class MessageActivity extends AppCompatActivity {
     CircleImageView imgViewUserImage;
@@ -112,8 +103,8 @@ public class MessageActivity extends AppCompatActivity {
         Slidr.attach(this);
 
         //api dành cho notification
-        apiService = Client.getClient("https://fcm.googleapis.com/").create(APIService.class);
-
+        //apiService = Client.getClient("https://fcm.googleapis.com/").create(APIService.class);
+        //
         recyclerView = findViewById(R.id.messageRecycleView);
         recyclerView.setHasFixedSize(true);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
@@ -229,7 +220,6 @@ public class MessageActivity extends AppCompatActivity {
             }
         });
         readMessages();
-        // seenMessage(userID);
         btnSend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -247,15 +237,18 @@ public class MessageActivity extends AppCompatActivity {
             isPermGranted=true;
         else
             isPermGranted=false;
+        //khi bấm vào nút mở file
         btnOpenGallery.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                //hiện menu
                 PopupMenu popup = new PopupMenu(MessageActivity.this, view);
                 popup.getMenuInflater().inflate(R.menu.get_file_menu, popup.getMenu());
                 popup.show();
                 popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
                     @Override
                     public boolean onMenuItemClick(MenuItem item) {
+                        //nếu chọn ảnh thì mở thư viện ảnh
                         if (item.getItemId() == R.id.gallery) {
                             if(isPermGranted) {
                                 Intent intent = new Intent();
@@ -265,12 +258,14 @@ public class MessageActivity extends AppCompatActivity {
                             }
                             else
                                 requestPermissions();
+                            //nếu chọn ảnh chụp từ camera thì mở camera
                         } else if (item.getItemId() == R.id.camera) {
                             if(isPermGranted) {
                                 Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
                                 startActivityForResult(intent, CAMERA_REQUEST);
                             }else
                                 requestPermissions();
+                            //nếu chọn video thì mở thư viện video
                         } else if (item.getItemId() == R.id.video) {
                             if(isPermGranted) {
                                 Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
@@ -284,6 +279,7 @@ public class MessageActivity extends AppCompatActivity {
                 });
             }
         });
+        //nếu bấm vào dấu X thì tắt giao diện ảnh, video đi và hiện lại edit text như bth
         removeMediaFromGallery.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -291,15 +287,18 @@ public class MessageActivity extends AppCompatActivity {
                 fileWrapper.setVisibility(View.GONE);
             }
         });
+        //gán vàn phím emoji vào imgabe button btnEmoji (Gán phát khi bấm sẽ hiện bàn phím toàn emoji)
         EmojIconActions emojIcon = new EmojIconActions(this, rootView, editTextMessage, btnEmoji);
         emojIcon.setIconsIds(R.drawable.ic_round_keyboard_24, R.drawable.ic_baseline_insert_emoticon_24);
         emojIcon.ShowEmojIcon();
     }
 
+    //sự kiện khi mình click vào các nút menu trên thanh toolbar
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if(item.getItemId()==R.id.call){
-            sendCallRequest();
+            //video chat
+            //sendCallRequest();
         }else if(item.getItemId()==R.id.info){
             Intent intent;
             if(!isCurrentTypeIsGroup) {
@@ -320,6 +319,7 @@ public class MessageActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    //cập nhật trạng thái "đã xem" dòng chat
     private void setSeenMessage() {
         DatabaseReference ref = FirebaseDatabase.getInstance().getReference("Users").child(firebaseUser.getUid()).child("username");
         ref.addValueEventListener(new ValueEventListener() {
@@ -339,7 +339,8 @@ public class MessageActivity extends AppCompatActivity {
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
                     Message message = snapshot.getValue(Message.class);
-                    if (!message.getSender().equals(firebaseUser.getUid())) { //nếu dòng chat đó không phải mình gửi thì sẽ seen nó
+                    if (!message.getSender().equals(firebaseUser.getUid())) {
+                        //nếu dòng chat đó không phải mình gửi thì sẽ seen nó
                         HashMap<String, Object> hashMap = new HashMap<>();
                         hashMap.put("seen", chatUserName + ",");
                         snapshot.getRef().updateChildren(hashMap);
@@ -354,6 +355,7 @@ public class MessageActivity extends AppCompatActivity {
         });
     }
 
+    //đọc message từ firebase và gán lên recyclerview
     private void readMessages() {
         DatabaseReference ref = FirebaseDatabase.getInstance().getReference("Messages").child(path);
         ref.addChildEventListener(new ChildEventListener() {
@@ -434,10 +436,12 @@ public class MessageActivity extends AppCompatActivity {
                 }
             }
         }
-        if (isNotify)
+        //gửi notify
+        /*if (isNotify)
             sendNotification(receiver, message);
-        isNotify = false;
+        isNotify = false;*/
     }
+    /*  Gửi notify
     private void sendNotification(String receiver, final String msg) {
         DatabaseReference tokens = FirebaseDatabase.getInstance().getReference("Tokens");
         Query query = tokens.orderByKey().equalTo(receiver);
@@ -474,7 +478,7 @@ public class MessageActivity extends AppCompatActivity {
 
             }
         });
-    }
+    }*/
 
     @Override
     protected void onPause() {
@@ -556,7 +560,7 @@ public class MessageActivity extends AppCompatActivity {
         return super.onCreateOptionsMenu(menu);
     }
     //gửi yêu cầu video call
-    void sendCallRequest(){
+    /*void sendCallRequest(){
         final DatabaseReference reference=FirebaseDatabase.getInstance().getReference("Users");
         reference.child(chatID).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -606,14 +610,17 @@ public class MessageActivity extends AppCompatActivity {
 
             }
         });
-    }
+    }*/
+
+
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        //xin permission bằng easy permission
         EasyPermissions.onRequestPermissionsResult(requestCode,permissions,grantResults,MessageActivity.this);
-
     }
 
+    //xin permission bằng easy permission
     @AfterPermissionGranted(PERM_REQUEST)
     private void requestPermissions(){
         String[] permissions={Manifest.permission.CAMERA,Manifest.permission.READ_EXTERNAL_STORAGE,Manifest.permission.WRITE_EXTERNAL_STORAGE};
