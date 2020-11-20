@@ -29,6 +29,11 @@ import com.bumptech.glide.Glide;
 import com.example.hellu.Adapter.MessageAdapter;
 import com.example.hellu.Class.UploadFileToFirebase;
 import com.example.hellu.MessageNotification.APIService;
+import com.example.hellu.MessageNotification.Client;
+import com.example.hellu.MessageNotification.Data;
+import com.example.hellu.MessageNotification.MyResponse;
+import com.example.hellu.MessageNotification.Sender;
+import com.example.hellu.MessageNotification.Token;
 import com.example.hellu.Model.Group;
 import com.example.hellu.Model.Message;
 import com.example.hellu.Model.User;
@@ -41,6 +46,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.ValueEventListener;
 import com.r0adkll.slidr.Slidr;
@@ -58,6 +64,9 @@ import hani.momanii.supernova_emoji_library.Actions.EmojIconActions;
 import hani.momanii.supernova_emoji_library.Helper.EmojiconEditText;
 import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.EasyPermissions;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class MessageActivity extends AppCompatActivity {
     CircleImageView imgViewUserImage;
@@ -102,8 +111,6 @@ public class MessageActivity extends AppCompatActivity {
         //vuốt activity sang phải để đóng
         Slidr.attach(this);
 
-        //api dành cho notification
-        //apiService = Client.getClient("https://fcm.googleapis.com/").create(APIService.class);
         //
         recyclerView = findViewById(R.id.messageRecycleView);
         recyclerView.setHasFixedSize(true);
@@ -291,6 +298,9 @@ public class MessageActivity extends AppCompatActivity {
         EmojIconActions emojIcon = new EmojIconActions(this, rootView, editTextMessage, btnEmoji);
         emojIcon.setIconsIds(R.drawable.ic_round_keyboard_24, R.drawable.ic_baseline_insert_emoticon_24);
         emojIcon.ShowEmojIcon();
+
+        //api dành cho notification
+        apiService = Client.getClient("https://fcm.googleapis.com/").create(APIService.class);
     }
 
     //sự kiện khi mình click vào các nút menu trên thanh toolbar
@@ -422,10 +432,11 @@ public class MessageActivity extends AppCompatActivity {
             chatRef.child("id").setValue(sender);
 
             DatabaseReference chatRef2 = FirebaseDatabase.getInstance().getReference("ChatIDList")
-                    .child(sender) //ID người nhận
-                    .child(receiver);   //ID của mình
+                    .child(sender) //ID của mình
+                    .child(receiver);   //ID người nhận
             chatRef2.child("id").setValue(receiver);
-        }else{
+        }
+        else{
             if(currentChatGroup!=null) {
                 List<String> memberList = Arrays.asList(currentChatGroup.getMember().split(","));
                 for (int i = 0; i < memberList.size(); i++) {
@@ -437,12 +448,12 @@ public class MessageActivity extends AppCompatActivity {
             }
         }
         //gửi notify
-        /*if (isNotify)
+        if (isNotify)
             sendNotification(receiver, message);
-        isNotify = false;*/
+        isNotify = false;
     }
-    /*  Gửi notify
-    private void sendNotification(String receiver, final String msg) {
+    //  Gửi notify
+    private void sendNotification(final String receiver, final String msg) {
         DatabaseReference tokens = FirebaseDatabase.getInstance().getReference("Tokens");
         Query query = tokens.orderByKey().equalTo(receiver);
         query.addValueEventListener(new ValueEventListener() {
@@ -450,8 +461,11 @@ public class MessageActivity extends AppCompatActivity {
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
                     Token token = dataSnapshot.getValue(Token.class);
-                    Data data = new Data(myCurrentUser.getId(), msg, myCurrentUser.getUsername(), chatID, myCurrentUser.getImageURL());
-
+                    Data data;
+                    if(!isCurrentTypeIsGroup)
+                        data = new Data(myCurrentUser.getId(), msg, myCurrentUser.getUsername(), receiver, myCurrentUser.getImageURL());
+                    else
+                        data = new Data(currentChatGroup.getId(), msg, myCurrentUser.getUsername(), receiver, myCurrentUser.getImageURL());
                     Sender sender = new Sender(data, token.getToken());
                     apiService.sendNotification(sender)
                             .enqueue(new Callback<MyResponse>() {
@@ -478,7 +492,7 @@ public class MessageActivity extends AppCompatActivity {
 
             }
         });
-    }*/
+    }
 
     @Override
     protected void onPause() {

@@ -5,7 +5,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -25,7 +24,6 @@ public class ChooseMemberAdapter extends RecyclerView.Adapter<ChooseMemberAdapte
     private Context context;
     private List<User> list;
     private AddGroupMemberActivity activity;
-    private CheckBox checkBox;
     public ChooseMemberAdapter(Context context, List<User> obj, AddGroupMemberActivity activity) {
         this.context=context;
         list=obj;
@@ -42,8 +40,6 @@ public class ChooseMemberAdapter extends RecyclerView.Adapter<ChooseMemberAdapte
     public void onBindViewHolder(@NonNull final Viewholder holder, final int position) {
         final User myUser = list.get(position);
         holder.userName.setText(myUser.getUsername());
-        checkBox = holder.usersCheckBox;
-
         //holder.userMsg.setText(myUser.getEmail());
         if (myUser.getImageURL().equals("default"))
             holder.userImage.setImageResource(R.mipmap.ic_launcher_round);
@@ -52,24 +48,24 @@ public class ChooseMemberAdapter extends RecyclerView.Adapter<ChooseMemberAdapte
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                activity.addItemToSelectedUserList(myUser);
                 if (holder.usersCheckBox.isChecked()) {
-                    holder.usersCheckBox.setChecked(false);
+                    //holder.usersCheckBox.setChecked(false);
+                    //activity.removeItemFromSelectedUserList(myUser);
                 } else {
-                    holder.usersCheckBox.setChecked(true);
+                    //holder.usersCheckBox.setChecked(true);
+                    //activity.addItemToSelectedUserList(myUser);
                 }
-            }
-        });
-        checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                if(!b)
-                    activity.removeItemFromList2(myUser);
-                else
-                    activity.addItemToList2(myUser);
             }
         });
         holder.userSubText.setText(myUser.getEmail());
     }
+
+    @Override
+    public int getItemViewType(int position) {
+        return super.getItemViewType(position);
+    }
+
     @Override
     public int getItemCount() {
         return list.size();

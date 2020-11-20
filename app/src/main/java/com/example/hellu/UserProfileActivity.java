@@ -205,7 +205,7 @@ public class UserProfileActivity extends AppCompatActivity {
                                 .child(firebaseUser.getUid());
                         HashMap<String, Object> hashMap = new HashMap<>();
                         hashMap.put("username", newValue.toString().trim());
-                        hashMap.put("search", newValue.toString().toLowerCase().trim());
+                        hashMap.put("search", newValue.toString().toLowerCase().trim()+" "+emailPref.getText());
                         ref.updateChildren(hashMap);
                     }
                     return false;

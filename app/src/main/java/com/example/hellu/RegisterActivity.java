@@ -118,7 +118,7 @@ public class RegisterActivity extends AppCompatActivity {
                     hashMap.put("email",email);
                     hashMap.put("imageURL","default");
                     hashMap.put("status","offline");
-                    hashMap.put("search",name.toLowerCase().trim()+" "+email+" "+name.trim());
+                    hashMap.put("search",name.toLowerCase().trim()+" "+email);
                     hashMap.put("lastonline", ServerValue.TIMESTAMP);
                     reference.setValue(hashMap).addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override

@@ -32,6 +32,7 @@ public class Data {
     public void setReceiver(String receiver) {
         this.receiver = receiver;
     }
+
     public String getLargeicon() {
         return largeicon;
     }

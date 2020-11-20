@@ -53,7 +53,7 @@ public class SearchFragment extends Fragment {
         Query query = FirebaseDatabase.getInstance().getReference("Users").orderByChild("search")
                 .startAt(s)
                 .endAt(s+"\uf8ff");
-        query.addValueEventListener(new ValueEventListener() {
+        query.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 if (dataSnapshot.exists()) {
@@ -76,7 +76,7 @@ public class SearchFragment extends Fragment {
         Query query2 = FirebaseDatabase.getInstance().getReference("Groups").orderByChild("search")
                 .startAt(s)
                 .endAt(s+"\uf8ff");
-        query2.addValueEventListener(new ValueEventListener() {
+        query2.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 if (dataSnapshot.exists()) {

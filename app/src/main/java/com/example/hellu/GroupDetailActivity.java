@@ -3,6 +3,7 @@ package com.example.hellu;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -62,7 +63,6 @@ public class GroupDetailActivity extends AppCompatActivity {
         memberCount=findViewById(R.id.groupDetail_GroupMemberCount);
         openGalery=findViewById(R.id.openGallery);
         groupImage=findViewById(R.id.groupDetail_Image);
-
         inputLayoutGroupName=findViewById(R.id.groupDetail_Name);
 
         layoutManager=new LinearLayoutManager(GroupDetailActivity.this);
@@ -74,11 +74,14 @@ public class GroupDetailActivity extends AppCompatActivity {
         memberList= (List<String>) getIntent().getSerializableExtra("listMember");
         if(getIntent().getSerializableExtra("groupObjectForUpdate")!=null){
             groupObjectForUpdate=(Group)getIntent().getSerializableExtra("groupObjectForUpdate");
-            Glide.with(GroupDetailActivity.this)
-                    .load(groupObjectForUpdate.getImageURL())
-                    .into(groupImage);
+            if(!groupObjectForUpdate.getImageURL().equals("default")) {
+                Glide.with(GroupDetailActivity.this)
+                        .load(groupObjectForUpdate.getImageURL())
+                        .into(groupImage);
+            }
             inputLayoutGroupName.getEditText().setText(groupObjectForUpdate.getName());
             groupID=groupObjectForUpdate.getId();
+            Log.w("groupImage","loaded");
         }
         //groupImage.image
         memberCount.setText("Thành viên: "+memberList.size());
@@ -150,7 +153,7 @@ public class GroupDetailActivity extends AppCompatActivity {
     }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        if(groupObjectForUpdate.getOwner()!=null) {
+        if(getIntent().getSerializableExtra("groupObjectForUpdate")!=null) {
             if(groupObjectForUpdate.getOwner().equals(FirebaseAuth.getInstance().getCurrentUser().getUid())) {
                 MenuInflater menuInflater = getMenuInflater();
                 menuInflater.inflate(R.menu.activity_create_group_menu, menu);

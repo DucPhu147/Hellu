@@ -48,7 +48,7 @@ public class SelectedMemberAdapter extends RecyclerView.Adapter<SelectedMemberAd
         holder.removeUser.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                activity.removeItemFromList2(myUser);
+                activity.removeItemFromSelectedUserList(myUser);
             }
         });
     }
